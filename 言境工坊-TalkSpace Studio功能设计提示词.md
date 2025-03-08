@@ -5,7 +5,7 @@
 > **@Create Time** 2025年3月4日
 
 现在需要您帮我设计一款web应用，需要包含完整的项目功能说明、技术栈汇总、主要功能模块说明与划分等内容，以便我后续据此完成对应接口文档的设计（注意，你需要确保提供的内容满足接口文档的书写需要，即内容完整），以下是我对项目的基本说明和构思，你的设计应该基于我的基本构思，并在其之上完善：
-技术栈：本项目应采用前后端分离架构，前端使用vue+vite构建，ui组件库采用ant-design-vue或elementui-plus，后端基于springboot3+kotlin+mybatis-plus+jdk11或jdk17；
+技术栈：本项目应采用前后端分离架构，前端使用vue+vite构建，ui组件库采用ant-design-vue或elementui-plus，后端基于springboot3+mybatis-plus+jdk17+sa-token；
 
 应用名称：言境工坊 - TalkSpace Studio
 

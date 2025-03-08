@@ -1,2 +1,10 @@
-*.yml
-*.yaml
+# 防止项目配置文件泄露敏感数据
+**/*.yml
+**/*.yaml
+**/*.properties
+
+# 防止IDE生成的文件（通用模板）
+.clashpath
+.project
+.idea/
+*.iml
