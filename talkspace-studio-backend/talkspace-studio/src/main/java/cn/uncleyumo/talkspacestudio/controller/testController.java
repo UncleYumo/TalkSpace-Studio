@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
-@Tag(name = "测试模块", description = "测试模块的描述")
+@Tag(name = "测试接口", description = "测试模块的描述")
 @Slf4j
 @RequestMapping("/test")
 public class testController {

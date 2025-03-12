@@ -1,21 +1,20 @@
 package cn.uncleyumo.talkspacestudio.service;
 
+import cn.uncleyumo.talkspacestudio.entity.dto.UserLoginDto;
+import cn.uncleyumo.talkspacestudio.entity.pojo.User;
 import cn.uncleyumo.talkspacestudio.entity.temp.CountTokenDto;
 import cn.uncleyumo.talkspacestudio.entity.vo.CalTokenRequestVo;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author uncle_yumo
- * @fileName StaticResourceService.java
+ * @fileName UserService
  * @createDate 2025/3/11 March
  * @school 无锡学院
  * @studentID 22344131
  * @description
  */
 
-public interface StaticResourceService {
+public interface UserService {
 
-    Integer getTtsMaxTokens();
-
-    String fileUpload(MultipartFile file);
+    User login(UserLoginDto userLoginDto);
 }

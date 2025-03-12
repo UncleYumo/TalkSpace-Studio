@@ -1,6 +1,7 @@
 package cn.uncleyumo.talkspacestudio;
 
 import cn.uncleyumo.talkspacestudio.utils.YumoColorPrintUtil;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author uncle_yumo
  */
 @SpringBootApplication
+@MapperScan("cn.uncleyumo.talkspacestudio.mapper")
 public class TalkspaceStudioApplication {
 
     public static void main(String[] args) {

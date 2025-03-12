@@ -11,11 +11,11 @@ import lombok.Data;
  * @description
  */
 
-public class FieldValidateConstant {
+public class FieldValidatePatternConstant {
     // 长度为8-20
     public static final String USERNAME_PATTERN = ".{8,20}";
     // 长度为8-20
     public static final String PASSWORD_PATTERN = ".{8,20}";
-    // 只能是数字，0或者1
-    public static final String GENERAL_PATTERN = "[01]";
+    public static final int GENDER_MALE = 0;
+    public static final int GENDER_FEMALE = 1;
 }

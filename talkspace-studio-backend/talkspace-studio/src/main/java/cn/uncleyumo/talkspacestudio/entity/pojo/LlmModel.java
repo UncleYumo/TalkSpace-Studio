@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @author uncle_yumo
  * @fileName LlmModel
@@ -16,7 +19,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class LlmModel {
+public class LlmModel implements Serializable {
+
+    @Serial  // 序列化标识符
+    private static final long serialVersionUID = 1L;
+
     @Schema(description = "模型名称")
     private final String modelName;
     @Schema(description = "模型描述")

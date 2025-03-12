@@ -5,8 +5,13 @@ import cn.dev33.satoken.util.SaResult;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author uncle_yumo
@@ -55,17 +60,30 @@ public class GlobalExceptionHandler {
         }
 
         // 返回给前端
-        return SaResult.error(message);
+        return SaResult.get(401, message, null);
+    }
+
+    /**
+     * 全局异常拦截（拦截项目中的Controller参数校验异常）
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public SaResult handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("!!!MethodArgumentNotValidException(参数校验)异常拦截");
+        BindingResult bindingResult = e.getBindingResult();  // 获取参数校验结果
+        List<String> errorList = new ArrayList<>();  // 错误信息列表
+        bindingResult.getFieldErrors().forEach(fieldError -> {
+            errorList.add("参数校验失败：" + fieldError.getField() + "，原因：" + fieldError.getDefaultMessage());
+        });
+        log.error(errorList.toString());
+        return SaResult.error(errorList.toString());
     }
 
     @ExceptionHandler(Exception.class)
     public SaResult handlerException(Exception e) {
         log.error("!!!全局异常拦截");
-        String stacktrace = ExceptionUtil.stacktraceToString(e);
-        if (stacktrace.length() > 200) {
-            return SaResult.error("Unknown error, please contact the administrator!");
-        }
-        log.error(stacktrace);
-        return SaResult.error(stacktrace);
+        log.error(ExceptionUtil.stacktraceToString(e));
+        return SaResult.error(e.getMessage());
     }
 }
