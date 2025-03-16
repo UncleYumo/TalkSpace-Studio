@@ -41,3 +41,4 @@ build/
 *.yaml
 /log-store/
 *.mp3
+/file-store/tts-file/*.json
