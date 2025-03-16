@@ -1,9 +1,6 @@
 package cn.uncleyumo.talkspacestudio.utils;
 
-import cn.uncleyumo.talkspacestudio.constant.LlmPromptConstant;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author uncle_yumo

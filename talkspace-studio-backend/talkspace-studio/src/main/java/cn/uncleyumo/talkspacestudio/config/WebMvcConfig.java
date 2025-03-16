@@ -1,5 +1,6 @@
 package cn.uncleyumo.talkspacestudio.config;
 
+import cn.uncleyumo.talkspacestudio.utils.YumoColorPrintUtil;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @description
  */
 
-//@Configuration
+@Configuration
 @Slf4j
 public class WebMvcConfig implements WebMvcConfigurer {
 //    @Bean
@@ -29,5 +30,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .failFast(true)  // 快速失败模式
                 .buildValidatorFactory();
         return factory.getValidator();
+    }
+
+    @Bean
+    public YumoColorPrintUtil yumoColorPrintUtil() {
+        log.info("初始化 YumoColorPrintUtil");
+        return new YumoColorPrintUtil();
     }
 }

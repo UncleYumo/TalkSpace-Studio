@@ -47,7 +47,7 @@ public class LlmTextUtil {
 
             HttpHeaders requestHeaders = new HttpHeaders();
             requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-            requestHeaders.set("Authorization", "Bearer " + property.getApiKey());
+            requestHeaders.set("Authorization", "Bearer " + property.getApiToken());
 
             HttpEntity<Map<String, Object>> r = new HttpEntity<Map<String, Object>>(requestBody, requestHeaders);
             result = restTemplate.postForObject(calTokenBaseUrl, r, CalTokenRequestVo.class);

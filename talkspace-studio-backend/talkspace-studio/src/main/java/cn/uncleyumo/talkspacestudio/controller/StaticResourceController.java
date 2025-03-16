@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/static_resource")
 public class StaticResourceController {
 
-    private StaticResourceService staticResourceService;
+    private final StaticResourceService staticResourceService;
 
     @Autowired
     public StaticResourceController(StaticResourceService staticResourceService) {
@@ -52,6 +52,6 @@ public class StaticResourceController {
     public SaResult fileUpload(@RequestBody MultipartFile file) {
         log.info("文件上传");
         String fileUrl = staticResourceService.fileUpload(file);
-        return SaResult.ok();
+        return SaResult.ok(fileUrl);
     }
 }

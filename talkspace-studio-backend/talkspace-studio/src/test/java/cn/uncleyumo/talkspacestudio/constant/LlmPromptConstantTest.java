@@ -18,7 +18,7 @@ class LlmPromptConstantTest {
     @Test
     void test() {
         System.out.println("--------- program start ---------");
-        System.out.print(LlmPromptConstant.ONLY_PLAIN_TEXT);
+//        System.out.print(UserScriptLlmPromptConstant.ONLY_PLAIN_TEXT);
         System.out.println("--------- program end -----------");
     }
 }

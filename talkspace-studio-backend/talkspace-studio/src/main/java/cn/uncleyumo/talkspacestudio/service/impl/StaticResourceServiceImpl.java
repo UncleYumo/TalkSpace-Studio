@@ -28,8 +28,8 @@ import java.io.InputStream;
 @Slf4j
 public class StaticResourceServiceImpl implements StaticResourceService {
 
-    private AliyunTtsProperty property;
-    private MinioUtil minioUtil;
+    private final AliyunTtsProperty property;
+    private final MinioUtil minioUtil;
 
     @Autowired
     public StaticResourceServiceImpl(AliyunTtsProperty property, MinioUtil minioUtil) {
@@ -47,7 +47,7 @@ public class StaticResourceServiceImpl implements StaticResourceService {
         try {
             return minioUtil.uploadFile(
                     file.getInputStream(),
-                    UUID.randomUUID().toString() + file.getOriginalFilename(),
+                    UUID.randomUUID().toString(),
                     file.getContentType()
             );
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package cn.uncleyumo.talkspacestudio.enums;
 import cn.uncleyumo.talkspacestudio.entity.pojo.LlmModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
  * @description Aliyun Llm Model Enum
  */
 
+@Getter
 public enum AliyunLlmModelEnum {
     QWEN_MAX("qwen-max", "适合复杂任务，推理能力最强", 32768),
     QWEN_PLUS("qwen-plus", "效果、速度、成本均衡", 131072),

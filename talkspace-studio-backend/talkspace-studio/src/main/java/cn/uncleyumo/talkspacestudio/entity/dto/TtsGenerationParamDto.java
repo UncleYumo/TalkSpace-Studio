@@ -17,11 +17,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TtsGenerationParamDto {
     private String text;
     private String timbre;
-    private Float speechRate = 1.0F;
-    private Float pitchRate = 1.0F;
-    private Integer volume = 50;
-    private String model = AliyunTtsModelConstant.COSY_VOICE_V1;
+    private Float speechRate;
+    private Float pitchRate;
+    private Integer volume;
+    private String model;
 }

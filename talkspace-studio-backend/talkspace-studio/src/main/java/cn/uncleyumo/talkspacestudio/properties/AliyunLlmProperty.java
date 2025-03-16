@@ -19,4 +19,5 @@ import org.springframework.stereotype.Component;
 public class AliyunLlmProperty {
     private String apiKey;
     private String calTokenBaseUrl;
+    private String apiToken;
 }

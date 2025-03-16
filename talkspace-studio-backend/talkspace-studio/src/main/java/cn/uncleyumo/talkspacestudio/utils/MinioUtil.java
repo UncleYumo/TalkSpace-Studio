@@ -1,5 +1,6 @@
 package cn.uncleyumo.talkspacestudio.utils;
 
+import cn.uncleyumo.talkspacestudio.constant.CommonErrorMessage;
 import cn.uncleyumo.talkspacestudio.properties.MinioProperty;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -22,8 +23,8 @@ import java.io.InputStream;
 @Component
 @Slf4j
 public class MinioUtil {
-    private MinioClient minioClient;
-    private MinioProperty minioProperty;
+    private final MinioClient minioClient;
+    private final MinioProperty minioProperty;
 
     @Autowired
     public MinioUtil(MinioClient minioClient, MinioProperty minioProperty) {
@@ -31,7 +32,7 @@ public class MinioUtil {
         this.minioProperty = minioProperty;
     }
 
-    public String uploadFile(InputStream inputStream, String objectName, String contentType) throws Exception {
+    public String uploadFile(InputStream inputStream, String objectName, String contentType) {
         try {
             PutObjectArgs args = PutObjectArgs.builder()
                     .bucket(minioProperty.getBucketName())
@@ -43,7 +44,7 @@ public class MinioUtil {
             return minioProperty.getFileHost() + "/" + minioProperty.getBucketName() + "/" + objectName;
         } catch (Exception e) {
             log.error("上传文件失败", e);
-            throw new RuntimeException("上传文件失败", e);
+            throw new RuntimeException(CommonErrorMessage.UPLOAD_FILE_ERROR);
         }
     }
 }
