@@ -1,54 +1,61 @@
 <script setup lang="ts">
-import ComponentDemo from './components/ComponentDemo.vue';
-import type { IProject } from './type/types';
-import { reactive } from 'vue';
+import { onUnmounted, onMounted, reactive } from 'vue';
+let ws: WebSocket | null = null;
+const message = reactive<String[]>([]);
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+const RECONNECT_INTERVAL = 5000; // 重连间隔时间，单位：毫秒
 
-// 使用 reactive 定义响应式对象
-const testProject = reactive<IProject>({
-    title: '示例项目标题',
-    description: '这是一个示例项目的描述信息。',
-    episodes: [
-        {
-            subTitle: '第一集副标题',
-            content: '第一集的具体内容。'
-        },
-        {
-            subTitle: '第二集副标题',
-            content: '第二集的具体内容。'
+const initWebSocket = () => {
+    ws = new WebSocket('ws://localhost:8081/ws');
+
+    ws.onopen = function() {
+        console.log('WebSocket连接已建立');
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
         }
-    ]
+    };
+
+    ws.onmessage = function(event) {
+        // Bug 修复：使用 push 方法将消息添加到数组中
+        message.push('收到消息：' + event.data); 
+    };
+
+    ws.onclose = function() {
+        console.log('WebSocket连接已关闭');
+        if (!reconnectTimer) {
+            reconnectTimer = setTimeout(() => {
+                console.log('尝试重新连接...');
+                initWebSocket();
+            }, RECONNECT_INTERVAL);
+        }
+    };
+
+    ws.onerror = function(error) {
+        console.error('WebSocket错误：', error);
+    };
+}
+
+onMounted(() => {
+    initWebSocket();
 });
 
-const testProject2 = reactive<IProject>({
-    title: '示例项目标题',
-    description: '这是一个示例项目的描述信息。',
-    episodes: [
-        {
-            subTitle: '第一集副标题',
-            content: '第一集的具体内容。'
-        },
-        {
-            subTitle: '第二集副标题',
-            content: '第二集的具体内容。'
-        }
-    ]
+onUnmounted(() => {
+    console.log("准备关闭WebSocket连接");
+    if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+    }
+    ws?.close();
 });
-
-
-const changeProject = () => {
-    testProject.title += 'x';
-    testProject.description += 'y';
-};
 
 </script>
 <template>
-    <div class=" justify-center text-center">
-        <button class=" bg-gray-500 w-40 h-20 hover:w-30 hover:h-15 hover:bg-amber-200"
-            @click="changeProject">改变项目</button>
-    </div>
-    <div class=" bg-amber-200">
-        <ComponentDemo :project="testProject" />
-        <ComponentDemo :project="testProject2" />
+    <!-- 修改为 div 标签 -->
+    <div>
+        <div class=" text-2xl text-fuchsia-900" v-for="(item, index) in message" :key="index">
+            {{ item }}
+        </div>
     </div>
 </template>
 

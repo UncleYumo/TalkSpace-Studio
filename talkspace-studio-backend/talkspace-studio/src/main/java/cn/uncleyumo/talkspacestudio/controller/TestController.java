@@ -2,6 +2,7 @@ package cn.uncleyumo.talkspacestudio.controller;
 
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.entity.temp.CountTokenDto;
+import cn.uncleyumo.talkspacestudio.handler.CustomWebSocketHandler;
 import cn.uncleyumo.talkspacestudio.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,9 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author uncle_yumo
- * @fileName testController
+ * @fileName TestController
  * @createDate 2025/3/8 March
  * @school 无锡学院
  * @studentID 22344131
@@ -22,13 +25,15 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "测试接口", description = "测试模块的描述")
 @Slf4j
 @RequestMapping("/test")
-public class testController {
+public class TestController {
 
-    private TestService testService;
+    private final TestService testService;
+    private final CustomWebSocketHandler customWebSocketHandler;
 
     @Autowired
-    public testController(TestService testService) {
+    public TestController(TestService testService, CustomWebSocketHandler customWebSocketHandler) {
         this.testService = testService;
+        this.customWebSocketHandler = customWebSocketHandler;
     }
 
     @GetMapping("/test01")
@@ -53,5 +58,22 @@ public class testController {
     public SaResult countTokenNumber(@RequestBody CountTokenDto countTokenDto) {
         testService.countToken(countTokenDto);
         return SaResult.data(testService.countTokenNumber(countTokenDto));
+    }
+
+    @GetMapping("/testWebsocket")
+    @Operation(summary = "测试websocket接口", description = "测试websocket接口的说明")
+    public SaResult testWebsocket(String message) {
+        log.warn("testWebsocket message: " + message);
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(3000);
+                customWebSocketHandler.broadcastMessage(message);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            //TODO 这里可以发送websocket消息
+            log.warn("testWebsocket message send success");
+        });
+        return SaResult.ok("异步任务已启动");
     }
 }
