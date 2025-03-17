@@ -1,9 +1,7 @@
-package cn.uncleyumo.talkspacestudio.entity.vo;
+package cn.uncleyumo.talkspacestudio.entity.pojo;
 
 import cn.uncleyumo.talkspacestudio.constant.FieldValidateMessageConstant;
-import cn.uncleyumo.talkspacestudio.entity.dto.ProjectRoleDto;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import cn.uncleyumo.talkspacestudio.entity.vo.EpisodeVo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,7 +15,7 @@ import java.util.List;
 
 /**
  * @author uncle_yumo
- * @fileName UserScriptVo
+ * @fileName UserScript
  * @createDate 2025/3/14 March
  * @school 无锡学院
  * @studentID 22344131
@@ -28,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserScriptVo implements Serializable {
+public class UserScript implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

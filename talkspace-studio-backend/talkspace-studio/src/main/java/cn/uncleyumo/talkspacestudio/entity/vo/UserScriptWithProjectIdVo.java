@@ -1,5 +1,6 @@
 package cn.uncleyumo.talkspacestudio.entity.vo;
 
+import cn.uncleyumo.talkspacestudio.entity.pojo.UserScript;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,5 +26,5 @@ public class UserScriptWithProjectIdVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private Long projectId;
-    private UserScriptVo userScript;
+    private UserScript userScript;
 }

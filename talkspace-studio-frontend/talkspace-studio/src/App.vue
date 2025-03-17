@@ -34,6 +34,7 @@ const testProject2 = reactive<IProject>({
     ]
 });
 
+
 const changeProject = () => {
     testProject.title += 'x';
     testProject.description += 'y';
@@ -42,7 +43,8 @@ const changeProject = () => {
 </script>
 <template>
     <div class=" justify-center text-center">
-        <button class=" bg-gray-500 w-40 h-20 hover:w-30 hover:h-15 hover:bg-amber-200" @click="changeProject">改变项目</button>
+        <button class=" bg-gray-500 w-40 h-20 hover:w-30 hover:h-15 hover:bg-amber-200"
+            @click="changeProject">改变项目</button>
     </div>
     <div class=" bg-amber-200">
         <ComponentDemo :project="testProject" />

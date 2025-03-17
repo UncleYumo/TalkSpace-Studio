@@ -3,7 +3,6 @@ package cn.uncleyumo.talkspacestudio.controller;
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.entity.dto.GenerateEpisodesDto;
 import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
 import cn.uncleyumo.talkspacestudio.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,20 +37,19 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @PostMapping("/user_script")
+    @PostMapping("/create_project")
     @Operation(summary = "创建用户剧本")
     public SaResult userScript(@Valid @RequestBody UserScriptDto userScriptDto) {
         log.info("创建用户剧本：{}", userScriptDto);
-        UserScriptWithProjectIdVo userScriptWithProjectIdVo = projectService.generateUserScript(userScriptDto);
-        log.info("生成的用户剧本：{}", userScriptWithProjectIdVo);
-        return SaResult.data(userScriptWithProjectIdVo);
+        projectService.generateUserScript(userScriptDto);
+        return SaResult.ok("剧本创建成功");
     }
 
-    @PostMapping("/generateEpisodes")
+    @PostMapping("/generate_episodes")
     @Operation(summary = "生成剧集")
     public SaResult generateEpisodes(@Valid @RequestBody GenerateEpisodesDto generateEpisodesDto) {
         log.info("生成剧集：{}", generateEpisodesDto);
         projectService.generateEpisodes(generateEpisodesDto);
-        return SaResult.ok();
+        return SaResult.ok("剧集生成成功");
     }
 }

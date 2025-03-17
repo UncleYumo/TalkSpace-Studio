@@ -21,8 +21,9 @@ import lombok.ToString;
 public enum ProjectStatusEnum implements IEnum<Integer> {
 
     DRAFT(0, "草稿"),
-    GENERATED(1, "已生成"),
-    PUBLISHED(2, "已发布");
+    GENERATING(1, "生成中"),
+    GENERATED(2, "已生成"),
+    PUBLISHED(3, "已发布");
 
     private final Integer value;
     private final String desc;

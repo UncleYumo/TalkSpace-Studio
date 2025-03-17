@@ -64,6 +64,10 @@ public class Project implements Serializable {
      */
     private ProjectStatusEnum status;
     /**
+     * 用户脚本
+     */
+    private UserScript userScriptVo;
+    /**
      * 项目创建时间
      */
     @TableField(fill = FieldFill.INSERT)

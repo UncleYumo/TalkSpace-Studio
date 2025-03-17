@@ -2,10 +2,7 @@ package cn.uncleyumo.talkspacestudio.service;
 
 import cn.uncleyumo.talkspacestudio.entity.dto.GenerateEpisodesDto;
 import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author uncle_yumo

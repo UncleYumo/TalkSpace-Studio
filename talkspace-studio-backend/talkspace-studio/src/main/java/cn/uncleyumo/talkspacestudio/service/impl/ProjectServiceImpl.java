@@ -10,7 +10,7 @@ import cn.uncleyumo.talkspacestudio.entity.pojo.Episode;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.pojo.ProjectRole;
 import cn.uncleyumo.talkspacestudio.entity.vo.AudioResultVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptVo;
+import cn.uncleyumo.talkspacestudio.entity.pojo.UserScript;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
 import cn.uncleyumo.talkspacestudio.enums.AliyunLlmModelEnum;
 import cn.uncleyumo.talkspacestudio.enums.ProjectStatusEnum;
@@ -73,9 +73,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         String prompt = UserScriptLlmPromptConstant.getPrompt(userScriptDto);
         String jsonStr = aliyunLlmUtil.generate(prompt, AliyunLlmModelEnum.QWEN_MAX.getModelName());
         ObjectMapper objectMapper = new ObjectMapper();
-        UserScriptVo result = null;
+        UserScript result = null;
         try {
-            result = objectMapper.readValue(jsonStr, UserScriptVo.class);
+            result = objectMapper.readValue(jsonStr, UserScript.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e.getMessage());
         }
