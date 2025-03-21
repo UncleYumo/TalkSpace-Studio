@@ -1,8 +1,10 @@
 package cn.uncleyumo.talkspacestudio.mapper;
 
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
+import cn.uncleyumo.talkspacestudio.entity.pojo.UserScript;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * @author uncle_yumo
@@ -15,4 +17,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ProjectMapper extends BaseMapper<Project> {
+
+//    @Select("SELECT user_script FROM project WHERE id = #{projectId}")
+//    UserScript getUserScript(Long projectId);
 }

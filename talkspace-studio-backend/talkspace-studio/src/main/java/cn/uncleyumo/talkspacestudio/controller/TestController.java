@@ -2,7 +2,7 @@ package cn.uncleyumo.talkspacestudio.controller;
 
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.entity.temp.CountTokenDto;
-import cn.uncleyumo.talkspacestudio.handler.CustomWebSocketHandler;
+import cn.uncleyumo.talkspacestudio.server.WebSocketServer;
 import cn.uncleyumo.talkspacestudio.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -28,12 +29,9 @@ import java.util.concurrent.CompletableFuture;
 public class TestController {
 
     private final TestService testService;
-    private final CustomWebSocketHandler customWebSocketHandler;
-
     @Autowired
-    public TestController(TestService testService, CustomWebSocketHandler customWebSocketHandler) {
+    public TestController(TestService testService) {
         this.testService = testService;
-        this.customWebSocketHandler = customWebSocketHandler;
     }
 
     @GetMapping("/test01")
@@ -62,18 +60,17 @@ public class TestController {
 
     @GetMapping("/testWebsocket")
     @Operation(summary = "测试websocket接口", description = "测试websocket接口的说明")
-    public SaResult testWebsocket(String message) {
-        log.warn("testWebsocket message: " + message);
+    public SaResult testWebsocket(String userId) {
+        log.warn("testWebsocket userId: " + userId);
         CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(3000);
-                customWebSocketHandler.broadcastMessage(message);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            //TODO 这里可以发送websocket消息
+            WebSocketServer.sendMessage(userId, "这是发送给用户" + userId + "的消息");
             log.warn("testWebsocket message send success");
         });
-        return SaResult.ok("异步任务已启动");
+        return SaResult.ok("测试websocket接口成功" + LocalDateTime.now());
     }
 }

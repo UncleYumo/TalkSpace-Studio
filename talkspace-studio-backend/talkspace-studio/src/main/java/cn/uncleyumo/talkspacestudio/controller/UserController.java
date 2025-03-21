@@ -11,6 +11,8 @@ import cn.uncleyumo.talkspacestudio.entity.vo.UserLoginVo;
 import cn.uncleyumo.talkspacestudio.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,9 @@ public class UserController {
         log.info("调用了login接口: {}", userLoginDto);
         User user = userService.login(userLoginDto);
         StpUtil.login(user.getId());
+//        Cookie cookie = new Cookie("tssUserId", user.getId().toString());
+//        cookie.setMaxAge(60 * 60 * 24 * 30);  // 设置cookie有效期为30天
+//        response.addCookie(cookie);
         return SaResult.data(BeanUtil.copyProperties(user, UserLoginVo.class));
     }
 
@@ -66,9 +71,12 @@ public class UserController {
 
     @GetMapping("/logout")
     @Operation(summary = "用户登出接口", description = "用户登出接口")
-    public SaResult logout() {
+    public SaResult logout(HttpServletResponse response) {
         log.info("调用了logout接口");
         StpUtil.logout();
+//        Cookie cookie = new Cookie("tssUserId", "");
+//        cookie.setMaxAge(0);  // 设置cookie有效期为0
+//        response.addCookie(cookie);
         return SaResult.ok();
     }
 

@@ -2,6 +2,8 @@ package cn.uncleyumo.talkspacestudio.entity.pojo;
 
 import cn.uncleyumo.talkspacestudio.constant.FieldValidateMessageConstant;
 import cn.uncleyumo.talkspacestudio.entity.vo.EpisodeVo;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,6 +34,8 @@ public class UserScript implements Serializable {
 
     @NotBlank(message = FieldValidateMessageConstant.TITLE_NOT_BLANK)
     private String title;
+
     @NotNull(message = FieldValidateMessageConstant.EPISODE_NOT_NULL)
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private List<EpisodeVo> episodes;
 }

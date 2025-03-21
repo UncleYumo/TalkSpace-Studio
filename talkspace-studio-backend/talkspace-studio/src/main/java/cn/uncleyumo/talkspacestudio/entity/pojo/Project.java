@@ -4,6 +4,8 @@ import cn.uncleyumo.talkspacestudio.enums.ProjectStatusEnum;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +28,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("project")
+@TableName(value = "project", autoResultMap = true)
 public class Project implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -60,13 +62,14 @@ public class Project implements Serializable {
      */
     private Integer singleDuration;
     /**
-     * 项目状态 0-草稿(DRAFT) 1-已生成(GENERATED) 2-已发布(PUBLISHED)
+     * 项目状态
      */
     private ProjectStatusEnum status;
     /**
      * 用户脚本
      */
-    private UserScript userScriptVo;
+    @TableField(typeHandler = JacksonTypeHandler.class, value = "user_script")
+    private UserScript userScript;
     /**
      * 项目创建时间
      */

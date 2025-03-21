@@ -1,5 +1,7 @@
 package cn.uncleyumo.talkspacestudio.entity.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,8 @@ public class EpisodeVo {
      */
     @NotBlank(message = "未能解析到有效的子标题")
     private String subTitle;
+
     @NotNull(message = "未能解析到有效的content")
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private List<EpisodeContentVo> content;
 }

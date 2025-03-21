@@ -28,7 +28,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("episode")
+@TableName(value = "episode", autoResultMap = true)
 public class Episode implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

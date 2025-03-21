@@ -9,7 +9,11 @@ module.exports = {
   },
   plugins: [
     require('tailwindcss'),
-    require('autoprefixer')
+    require('autoprefixer'),
+    require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/line-clamp'),
+    require('@tailwindcss/typography'),
   ],
   corePlugins: {
     preflight: false

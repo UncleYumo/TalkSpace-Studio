@@ -46,6 +46,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("*") // 允许的请求头类型
                 .maxAge(3600)  // 预检请求的缓存时间（单位：秒）
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的请求方法类型
-                .allowedOrigins("http://127.0.0.1:5174", "http://localhost:5174"); // 允许哪些域名进行跨域访问
+                .allowedOrigins("http://127.0.0.1:5173", "http://localhost:5173"); // 允许哪些域名进行跨域访问
     }
 }

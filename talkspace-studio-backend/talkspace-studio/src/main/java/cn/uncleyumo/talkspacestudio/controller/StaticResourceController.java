@@ -2,6 +2,7 @@ package cn.uncleyumo.talkspacestudio.controller;
 
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.enums.AliyunLlmModelEnum;
+import cn.uncleyumo.talkspacestudio.enums.AliyunTtsTimbreEnum;
 import cn.uncleyumo.talkspacestudio.service.StaticResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +38,13 @@ public class StaticResourceController {
     public SaResult llmModelList() {
         log.info("获取llm模型列表");
         return SaResult.data(AliyunLlmModelEnum.getModelList());
+    }
+
+    @GetMapping("/tts_timbre_List")
+    @Operation(summary = "获取tts音色列表")
+    public SaResult ttsTimbreList() {
+        log.info("获取tts音色列表");
+        return SaResult.data(AliyunTtsTimbreEnum.getTimbreList());
     }
 
     @GetMapping("/tts_max_tokens")

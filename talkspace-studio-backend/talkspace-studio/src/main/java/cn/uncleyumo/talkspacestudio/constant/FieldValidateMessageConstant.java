@@ -39,5 +39,7 @@ public class FieldValidateMessageConstant {
     public static final String SINGLE_VOLUME_NOT_NULL = "合成音频的音量不能为空（0-100）";
     public static final String SINGLE_VOLUME_MIN_VALUE = "合成音频的音量最小值为0";
     public static final String SINGLE_VOLUME_MAX_VALUE = "合成音频的音量最大值为100";
-
+    public static final String USER_ID_NOT_NULL = "用户ID不能为空";
+    public static final String USER_SCRIPT_NOT_NULL = "用户脚本不能为空";
+    public static final String PROJECT_TITLE_NOT_BLANK = "项目标题不能为空";
 }

@@ -27,6 +27,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
         excludePathUrls.add("/user/login");
         excludePathUrls.add("/user/register");
         excludePathUrls.add("/user/logout");
+        excludePathUrls.add("/ws/**");
         excludePathUrls.add("/**/doc.*");
         excludePathUrls.add("/**/swagger-ui.*");
         excludePathUrls.add("/**/swagger-resources");

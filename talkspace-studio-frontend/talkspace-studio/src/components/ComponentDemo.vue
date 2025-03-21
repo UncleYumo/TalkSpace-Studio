@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center border-4 border-black">
+    <!-- <div class="text-center border-4 border-black">
         <h1>{{ project.title }}</h1>
         <p>{{ project.description }}</p>
         <ul>
@@ -9,20 +9,20 @@
                 <p>{{ episode.content }}</p>
             </li>
         </ul>
-    </div>
+    </div> -->
 </template>
 
 <script lang="ts" setup>
-import type { IProject } from '../type/types';
-import { toRefs } from 'vue';
+// import type { IProject } from '../type/types';
+// import { toRefs } from 'vue';
 
-const props = defineProps({
-    project: {
-        type: Object as () => IProject,
-        default: null
-    }
-});
+// const props = defineProps({
+//     project: {
+//         type: Object as () => IProject,
+//         default: null
+//     }
+// });
 
-// 使用 toRefs 确保响应式
-const { project } = toRefs(props);
+// // 使用 toRefs 确保响应式
+// const { project } = toRefs(props);
 </script>

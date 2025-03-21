@@ -22,7 +22,7 @@ public class UserScriptLlmPromptConstant {
         StringBuilder prompt = new StringBuilder("""
             你是一位播客剧本专家，需根据以下要求生成JSON格式的剧本：
             1. 标题：%s，语言：%s，共%d集，每集约%d分钟。
-            2. 角色音色信息：
+            2. 角色音色信息（剧本中的姓名+音色编号）：
             """.formatted(
                 userScriptDto.getTitle(),
                 userScriptDto.getLanguage(),
@@ -34,11 +34,10 @@ public class UserScriptLlmPromptConstant {
         List<ProjectRoleDto> roles = userScriptDto.getRoles();
         for (int i = 0; i < roles.size(); i++) {
             TtsTimbre timbre = AliyunTtsTimbreEnum.getTimbreByName(roles.get(i).getTimbre());
-            prompt.append("%d. %s（%s）：%s\n".formatted(
+            prompt.append("2.%d. %s（%s）\n".formatted(
                     i + 1,
                     roles.get(i).getCharacterName(),
-                    timbre.getTimbreName(),
-                    timbre.getDescription()
+                    timbre.getTimbreName()
             ));
         }
 

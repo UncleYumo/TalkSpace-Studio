@@ -17,4 +17,10 @@ public class CommonErrorMessage {
     public static final String TIMBRE_OR_VOICE_CANNOT_BE_NULL_OR_EMPTY = "音色或音调不能为空";
     public static final String IO_ERROR = "文件IO操作错误";
     public static final String UPLOAD_FILE_ERROR = "上传文件失败";
+    public static final String PROJECT_NOT_FOUND = "项目不存在";
+    public static final String PROJECT_ROLE_NOT_FOUND = "项目角色不存在";
+    public static final String ROLES_NOT_FOUND = "角色不存在";
+    public static final String GENERAL_ERROR = "系统错误";
+    public static final String SCRIPT_NOT_GENERATED = "脚本生成失败";
+    public static final String USER_SCRIPT_NOT_GENERATED = "该模板未生成过可用剧本";
 }
