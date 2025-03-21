@@ -1,10 +1,7 @@
 package cn.uncleyumo.talkspacestudio.controller;
 
 import cn.dev33.satoken.util.SaResult;
-import cn.uncleyumo.talkspacestudio.entity.dto.GenerateAiUserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.GenerateEpisodesDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptWithProjectIdAndCharacterNameDto;
+import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
@@ -71,9 +68,10 @@ public class ProjectController {
 
     @PostMapping("/generate_podcast_ai")
     @Operation(summary = "AI生成播客")
-    public SaResult generatePodcast(@Valid @RequestBody GenerateEpisodesDto generateEpisodesDto) {
+    public SaResult generatePodcast(@Valid @RequestBody GeneratePodcastDto generatePodcastDto) {
 
-        log.info("AI生成剧集：{}", generateEpisodesDto);
+        log.info("AI生成剧集：{}", generatePodcastDto);
+        GenerateEpisodesDto generateEpisodesDto = projectService.generateEpisodes(generatePodcastDto);
         projectService.generateEpisodes(generateEpisodesDto);
         return SaResult.ok("后台任务开始生成剧集，请稍后查看");
     }

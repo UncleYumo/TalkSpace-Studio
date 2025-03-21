@@ -55,3 +55,11 @@ export interface ProjectRoleListApiType {
     role: string;
     characterName: string;
 }
+
+export interface generatePodcastApiType {
+    projectId: string;
+    userId: string;
+    speechRate: number;
+    pitchRate: number;
+    volume: number;
+}

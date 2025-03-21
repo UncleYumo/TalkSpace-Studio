@@ -7,6 +7,7 @@ import { useUserInfoStore } from '../stores/UserInfoStore.ts';
 import { userLogoutApi } from '../api/handleUserApi.ts';
 import router from '../router/index.ts';
 import { useWebSocketMessageStore } from '../stores/WebSocketMessageStore.ts';
+import { githubUrl } from '../assets/asset_urls.ts';
 
 const messageColumns = [
     {
@@ -33,13 +34,21 @@ const doUserLogout = async () => {
     window.location.reload();
 }
 
+const goToGithubPage = () => {
+    window.open(githubUrl, '_blank');
+}
+
 </script>
 
 <template>
     <a-layout-header class="w-full" :style="{ padding: '0' }">
         <a-menu v-model:selectedKeys="selectedKeys" mode="horizontal" class="leading-[4rem] justify-between">
             <a-menu-item key="1">
-                <img class="w-14 h-auto pt-1" :src="themeStore.logoPath" alt="TalkSpace Studio Logo" />
+                <img class="w-14 h-auto pt-1"
+                    :src="themeStore.logoPath"
+                    alt="TalkSpace Studio Logo"
+                    @click="goToGithubPage"
+                />
             </a-menu-item>
             <a-menu-item key="2" @click="router.push('/')">创意工坊</a-menu-item>
             <a-menu-item key="3" @click="router.push('/talkspace-community-page')">言境社区</a-menu-item>

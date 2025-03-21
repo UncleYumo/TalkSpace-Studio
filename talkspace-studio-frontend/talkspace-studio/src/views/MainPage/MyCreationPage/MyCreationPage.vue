@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import type { ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from '../../../api/types/handleProjectApiType';
-import { aiGenerateScriptApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
+import { aiGeneratePodcastApi, aiGenerateScriptApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { formatCreateTime } from '../../../utils/TimeUtil';
 import { message } from 'ant-design-vue';
@@ -68,6 +68,29 @@ const generateUserScript = async (projectId: string, userId: string) => {
         const result = await aiGenerateScriptApi({
             userId: userId,
             projectId: projectId,
+        });
+        if (result) {
+            // window.location.reload();
+        }
+    } finally {
+        // 3. 无论成功或失败，最后都重置加载状态
+        buttonLoadingStatus.value[projectId] = false;
+        // 4. 刷新项目列表数据
+        refreshProjectListTableData();
+    }
+};
+
+// 生成播客，处理按钮加载状态
+const generatePodcast = async (projectId: string, userId: string) => {
+    // 1. 设置当前按钮为加载状态
+    buttonLoadingStatus.value[projectId] = true;
+    try {
+        const result = await aiGeneratePodcastApi({
+            projectId: projectId,
+            userId: userId,
+            speechRate: 1,
+            pitchRate: 1,
+            volume: 50,
         });
         if (result) {
             // window.location.reload();
@@ -184,9 +207,9 @@ const saveScript = async () => {
 
 onMounted(async () => {
     await refreshProjectListTableData();
-    // 默认加载第一个项目的编辑页面
+    // 默认加载最后一个项目的编辑页面
     if (projectListTableData.value.length > 0) {
-        editScript(projectListTableData.value[0].id);
+        editScript(projectListTableData.value[projectListTableData.value.length - 1].id);
     }
 });
 </script>
@@ -258,11 +281,17 @@ onMounted(async () => {
                                     </a-button>
                                     <!-- 其他按钮保持原有逻辑 -->
                                     <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)">生成播客</a-button>
+                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)"
+                                    >
+                                        删除模板</a-button>
                                     <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)">公开发布</a-button>
+                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT', 'DRAFT'].includes(project.status)"
+                                        @click="generatePodcast(project.id, project.userId)"
+                                    >
+                                        生成播客</a-button>
                                     <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)">删除模板</a-button>
+                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT', 'DRAFT'].includes(project.status)">公开发布</a-button>
+
                                 </a-card>
                             </div>
                         </div>
@@ -285,7 +314,7 @@ onMounted(async () => {
                                     :key="epIndex" :header="`${episode.subTitle}`">
                                     <!-- 内容条目 -->
                                     <div v-for="(content, conIndex) in episode.contentWithCharacterName" :key="conIndex"
-                                        class="mb-4 p-4 border rounded">
+                                        class="mb-4 p-4 rounded">
                                         <div class="flex justify-between items-center mb-2">
                                             <span class="font-medium">
                                                 角色：{{ content.role }}（{{ content.characterName }}）

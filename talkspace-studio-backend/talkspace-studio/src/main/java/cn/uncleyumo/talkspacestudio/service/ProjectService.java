@@ -1,9 +1,6 @@
 package cn.uncleyumo.talkspacestudio.service;
 
-import cn.uncleyumo.talkspacestudio.entity.dto.GenerateAiUserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.GenerateEpisodesDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptDto;
-import cn.uncleyumo.talkspacestudio.entity.dto.UserScriptWithProjectIdAndCharacterNameDto;
+import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
@@ -36,4 +33,6 @@ public interface ProjectService {
     List<ProjectRoleVo> getProjectRolVoList(long l);
 
     void updateUserScript(UserScriptWithProjectIdAndCharacterNameDto userScriptDto);
+
+    GenerateEpisodesDto generateEpisodes(GeneratePodcastDto generatePodcastDto);
 }

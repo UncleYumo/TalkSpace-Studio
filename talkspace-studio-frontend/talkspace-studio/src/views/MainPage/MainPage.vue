@@ -74,6 +74,11 @@ ws.onmessage = (event) => {
       openProjectFinishedNotification(e[1]);
       break;
     }
+    case "AI播客生成完成": {
+      useWebSocketMessageStore().addMessage(e[1]);
+      openProjectFinishedNotification(e[1]);
+      break;
+    }
     default: {
       // message.info(event.data);
       useWebSocketMessageStore().addMessage(event.data);

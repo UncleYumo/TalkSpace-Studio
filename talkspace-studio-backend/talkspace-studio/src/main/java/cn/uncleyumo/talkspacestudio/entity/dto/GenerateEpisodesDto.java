@@ -33,6 +33,9 @@ public class GenerateEpisodesDto implements Serializable {
     @NotNull(message = FieldValidateMessageConstant.PROJECT_ID_NOT_NULL)
     private Long projectId;
 
+    @NotNull(message = FieldValidateMessageConstant.USER_ID_NOT_NULL)
+    private Long userId;
+
     @NotNull(message = FieldValidateMessageConstant.SINGLE_RATE_NOT_NULL)
     @DecimalMax(value = "2.0", message = FieldValidateMessageConstant.SINGLE_RATE_MAX_VALUE)
     @DecimalMin(value = "0.5", message = FieldValidateMessageConstant.SINGLE_RATE_MIN_VALUE)

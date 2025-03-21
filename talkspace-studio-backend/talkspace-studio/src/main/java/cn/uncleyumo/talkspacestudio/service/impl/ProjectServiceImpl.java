@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
@@ -98,6 +99,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     }
 
     @Override
+    @Async
     @Transactional
     public void generateEpisodes(GenerateEpisodesDto generateEpisodesDto) {
         SpeechSynthesisParam param = SpeechSynthesisParam.builder()
@@ -129,6 +131,15 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         log.info("准备保存episodes: {}", episodes);
         episodeService.saveBatch(episodes);
         log.info("episodes saved");
+        // 更新项目状态
+        Project project = projectMapper.selectById(generateEpisodesDto.getProjectId());
+        project.setStatus(ProjectStatusEnum.PODCAST);
+        projectMapper.updateById(project);
+        // 发送 WebSocket 通知
+        WebSocketServer.sendMessage(
+                generateEpisodesDto.getUserId().toString(),
+                WebSocketMessageTypeConstant.AI_PODCAST_GENERATE_COMPLETE + "您有新的播客生成成功"
+        );
     }
 
 
@@ -268,6 +279,24 @@ public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
         project.setUserScript(newUserScript);
         this.updateById(project);
         log.info("项目[{}]的剧本更新成功", project.getTitle());
+    }
+
+    @Override
+    @Transactional
+    public GenerateEpisodesDto generateEpisodes(GeneratePodcastDto generatePodcastDto) {
+        GenerateEpisodesDto generateEpisodesDto = new GenerateEpisodesDto();
+        BeanUtil.copyProperties(generatePodcastDto, generateEpisodesDto);
+        Project project = this.getById(generateEpisodesDto.getProjectId());
+        if (project == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+        if (project.getStatus() == null || project.getStatus().equals(ProjectStatusEnum.DRAFT)) {
+            throw new RuntimeException(CommonErrorMessage.USER_SCRIPT_NOT_GENERATED);
+        }
+        generateEpisodesDto.setEpisodes(project.getUserScript().getEpisodes());
+        project.setStatus(ProjectStatusEnum.PODCAST_SCRIPT);
+        this.updateById(project);
+        return generateEpisodesDto;
     }
 
 

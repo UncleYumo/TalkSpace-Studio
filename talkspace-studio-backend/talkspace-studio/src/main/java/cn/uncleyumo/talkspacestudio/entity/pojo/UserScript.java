@@ -3,6 +3,7 @@ package cn.uncleyumo.talkspacestudio.entity.pojo;
 import cn.uncleyumo.talkspacestudio.constant.FieldValidateMessageConstant;
 import cn.uncleyumo.talkspacestudio.entity.vo.EpisodeVo;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@TableName(autoResultMap = true)
 public class UserScript implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
