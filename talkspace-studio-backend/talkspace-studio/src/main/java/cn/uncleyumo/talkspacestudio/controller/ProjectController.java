@@ -3,11 +3,13 @@ package cn.uncleyumo.talkspacestudio.controller;
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
+import cn.uncleyumo.talkspacestudio.entity.vo.FinalProjectVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
 import cn.uncleyumo.talkspacestudio.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
@@ -86,7 +88,10 @@ public class ProjectController {
 
     @GetMapping("/get_user_script/{projectId}")
     @Operation(summary = "获取用户剧本")
-    public SaResult getUserScript(@PathVariable String projectId) {
+    public SaResult getUserScript(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
         log.info("获取用户剧本：{}", projectId);
         UserScriptWithProjectIdAndCharacterNameVo userScript = projectService.getUserScript(Long.parseLong(projectId));
         return SaResult.data(userScript);
@@ -94,7 +99,10 @@ public class ProjectController {
 
     @GetMapping("/get_project_role_list/{projectId}")
     @Operation(summary = "获取项目角色列表")
-    public SaResult getProjectRoleList(@PathVariable String projectId) {
+    public SaResult getProjectRoleList(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
         log.info("获取项目角色列表：{}", projectId);
         List<ProjectRoleVo> projectRoleList = projectService.getProjectRolVoList(Long.parseLong(projectId));
         return SaResult.data(projectRoleList);
@@ -106,6 +114,16 @@ public class ProjectController {
         log.info("更新用户剧本：{}", userScriptDto);
         projectService.updateUserScript(userScriptDto);
         return SaResult.ok("用户剧本已保存");
+    }
+
+    @GetMapping("/get_final_project_list/{projectId}")
+    @Operation(summary = "获取最终播客列表")
+    public SaResult getFinalProjectList(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        List<FinalProjectVo> finalProjectList = projectService.getFinalProjectList(Long.parseLong(projectId));
+        return SaResult.data("暂未开放");
     }
 
 }

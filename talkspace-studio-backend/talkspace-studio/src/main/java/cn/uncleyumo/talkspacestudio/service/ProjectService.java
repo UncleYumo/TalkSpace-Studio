@@ -2,6 +2,7 @@ package cn.uncleyumo.talkspacestudio.service;
 
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
+import cn.uncleyumo.talkspacestudio.entity.vo.FinalProjectVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
 import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
@@ -35,4 +36,6 @@ public interface ProjectService {
     void updateUserScript(UserScriptWithProjectIdAndCharacterNameDto userScriptDto);
 
     GenerateEpisodesDto generateEpisodes(GeneratePodcastDto generatePodcastDto);
+
+    List<FinalProjectVo> getFinalProjectList(long l);
 }

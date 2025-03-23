@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
@@ -297,6 +296,19 @@ public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
         project.setStatus(ProjectStatusEnum.PODCAST_SCRIPT);
         this.updateById(project);
         return generateEpisodesDto;
+    }
+
+    @Override
+    public List<FinalProjectVo> getFinalProjectList(long projectId) {
+        Project project = this.getById(projectId);
+        if (project == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+        // 校验项目状态：
+        if (!(project.getStatus() == ProjectStatusEnum.PODCAST || project.getStatus() == ProjectStatusEnum.PUBLISHED)) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_HAVE_PODCAST);
+        }
+        return null;
     }
 
 

@@ -23,4 +23,5 @@ public class CommonErrorMessage {
     public static final String GENERAL_ERROR = "系统错误";
     public static final String SCRIPT_NOT_GENERATED = "脚本生成失败";
     public static final String USER_SCRIPT_NOT_GENERATED = "该模板未生成过可用剧本";
+    public static final String PROJECT_NOT_HAVE_PODCAST = "该项目暂未生成可用播客";
 }
