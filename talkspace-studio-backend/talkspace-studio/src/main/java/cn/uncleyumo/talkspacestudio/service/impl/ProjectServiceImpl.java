@@ -12,6 +12,7 @@ import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.pojo.ProjectRole;
 import cn.uncleyumo.talkspacestudio.entity.vo.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.UserScript;
+import cn.uncleyumo.talkspacestudio.entity.vo.caltokenrequest.FinalEpisodeVo;
 import cn.uncleyumo.talkspacestudio.enums.AliyunLlmModelEnum;
 import cn.uncleyumo.talkspacestudio.enums.ProjectStatusEnum;
 import cn.uncleyumo.talkspacestudio.mapper.ProjectMapper;
@@ -101,6 +102,17 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Async
     @Transactional
     public void generateEpisodes(GenerateEpisodesDto generateEpisodesDto) {
+
+        Project p = this.getById(generateEpisodesDto.getProjectId());
+        if (p == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+
+        // 删除原有剧本
+        QueryWrapper<Episode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("project_id", generateEpisodesDto.getProjectId());
+        episodeService.remove(queryWrapper);
+        log.info("原有剧本已删除");
         SpeechSynthesisParam param = SpeechSynthesisParam.builder()
                 .speechRate(generateEpisodesDto.getSpeechRate())
                 .pitchRate(generateEpisodesDto.getPitchRate())
@@ -137,7 +149,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         // 发送 WebSocket 通知
         WebSocketServer.sendMessage(
                 generateEpisodesDto.getUserId().toString(),
-                WebSocketMessageTypeConstant.AI_PODCAST_GENERATE_COMPLETE + "您有新的播客生成成功"
+                WebSocketMessageTypeConstant.AI_PODCAST_GENERATE_COMPLETE + String.format("项目[%s]的播客生成完成", project.getTitle())
         );
     }
 
@@ -161,74 +173,74 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         return this.list(new QueryWrapper<Project>().eq("user_id", StpUtil.getLoginIdAsLong()).orderByDesc("create_time"));
     }
 
-@Override
-public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
-    try {
-        Project project = getById(projectId);
-        if (project == null) {
-            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+    @Override
+    public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
+        try {
+            Project project = getById(projectId);
+            if (project == null) {
+                throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+            }
+            log.info("项目: {}", project);
+
+            if (project.getStatus() == null || project.getStatus().equals(ProjectStatusEnum.DRAFT)) {
+                log.info("项目状态为草稿，无法获取剧本");
+                throw new RuntimeException(CommonErrorMessage.USER_SCRIPT_NOT_GENERATED);
+            }
+
+            UserScript userScript = project.getUserScript();
+
+            if (userScript == null) {
+                throw new RuntimeException(CommonErrorMessage.SCRIPT_NOT_GENERATED);
+            }
+            log.info("剧本: {}", userScript);
+
+            // 获取当前项目的所有角色，并转换为timbre->角色名的Map
+            List<ProjectRole> projectRoles = projectRoleService.list(
+                    new QueryWrapper<ProjectRole>().eq("project_id", projectId)
+            );
+            if (projectRoles.isEmpty()) {
+                throw new RuntimeException(CommonErrorMessage.ROLES_NOT_FOUND);
+            }
+            log.info("角色列表: {}", projectRoles);
+
+            Map<String, String> roleNameMap = projectRoles.stream()
+                    .collect(Collectors.toMap(ProjectRole::getTimbre, ProjectRole::getCharacterName, (existing, replacement) -> existing));
+
+            // 构建剧本对象
+            UserScriptVo userScriptVo = new UserScriptVo();
+            userScriptVo.setTitle(project.getTitle());
+
+            List<EpisodeWithCharacterNameVo> episodesWithCharacterNameList = new ArrayList<>();
+
+            // 处理每个剧本片段
+            userScript.getEpisodes().forEach(episode -> {
+                EpisodeWithCharacterNameVo episodeVo = new EpisodeWithCharacterNameVo();
+                episodeVo.setSubTitle(episode.getSubTitle());
+
+                // 新增内容列表转换
+                List<EpisodeContentWithCharacterNameVo> contentList = episode.getContent().stream()
+                        .map(content -> {
+                            EpisodeContentWithCharacterNameVo contentVo = new EpisodeContentWithCharacterNameVo();
+                            BeanUtils.copyProperties(content, contentVo);
+                            contentVo.setCharacterName(roleNameMap.get(content.getRole()));
+                            return contentVo;
+                        }).collect(Collectors.toList());
+
+                episodeVo.setContentWithCharacterName(contentList);
+                episodesWithCharacterNameList.add(episodeVo);
+            });
+
+            userScriptVo.setEpisodesWithCharacterName(episodesWithCharacterNameList);
+            return new UserScriptWithProjectIdAndCharacterNameVo(projectId, userScriptVo);
+
+        } catch (RuntimeException e) {
+            log.error("获取剧本失败: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("获取剧本失败", e);
+            throw new RuntimeException(CommonErrorMessage.GENERAL_ERROR, e);
         }
-        log.info("项目: {}", project);
-
-        if (project.getStatus() == null || project.getStatus().equals(ProjectStatusEnum.DRAFT)) {
-            log.info("项目状态为草稿，无法获取剧本");
-            throw new RuntimeException(CommonErrorMessage.USER_SCRIPT_NOT_GENERATED);
-        }
-
-        UserScript userScript = project.getUserScript();
-
-        if (userScript == null) {
-            throw new RuntimeException(CommonErrorMessage.SCRIPT_NOT_GENERATED);
-        }
-        log.info("剧本: {}", userScript);
-
-        // 获取当前项目的所有角色，并转换为timbre->角色名的Map
-        List<ProjectRole> projectRoles = projectRoleService.list(
-                new QueryWrapper<ProjectRole>().eq("project_id", projectId)
-        );
-        if (projectRoles.isEmpty()) {
-            throw new RuntimeException(CommonErrorMessage.ROLES_NOT_FOUND);
-        }
-        log.info("角色列表: {}", projectRoles);
-
-        Map<String, String> roleNameMap = projectRoles.stream()
-                .collect(Collectors.toMap(ProjectRole::getTimbre, ProjectRole::getCharacterName, (existing, replacement) -> existing));
-
-        // 构建剧本对象
-        UserScriptVo userScriptVo = new UserScriptVo();
-        userScriptVo.setTitle(project.getTitle());
-
-        List<EpisodeWithCharacterNameVo> episodesWithCharacterNameList = new ArrayList<>();
-
-        // 处理每个剧本片段
-        userScript.getEpisodes().forEach(episode -> {
-            EpisodeWithCharacterNameVo episodeVo = new EpisodeWithCharacterNameVo();
-            episodeVo.setSubTitle(episode.getSubTitle());
-
-            // 新增内容列表转换
-            List<EpisodeContentWithCharacterNameVo> contentList = episode.getContent().stream()
-                    .map(content -> {
-                        EpisodeContentWithCharacterNameVo contentVo = new EpisodeContentWithCharacterNameVo();
-                        BeanUtils.copyProperties(content, contentVo);
-                        contentVo.setCharacterName(roleNameMap.get(content.getRole()));
-                        return contentVo;
-                    }).collect(Collectors.toList());
-
-            episodeVo.setContentWithCharacterName(contentList);
-            episodesWithCharacterNameList.add(episodeVo);
-        });
-
-        userScriptVo.setEpisodesWithCharacterName(episodesWithCharacterNameList);
-        return new UserScriptWithProjectIdAndCharacterNameVo(projectId, userScriptVo);
-
-    } catch (RuntimeException e) {
-        log.error("获取剧本失败: {}", e.getMessage());
-        throw e;
-    } catch (Exception e) {
-        log.error("获取剧本失败", e);
-        throw new RuntimeException(CommonErrorMessage.GENERAL_ERROR, e);
     }
-}
 
     @Override
     public List<ProjectRoleVo> getProjectRolVoList(long projectId) {
@@ -299,7 +311,7 @@ public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
     }
 
     @Override
-    public List<FinalProjectVo> getFinalProjectList(long projectId) {
+    public FinalProjectVo getFinalProjectVo(long projectId) {
         Project project = this.getById(projectId);
         if (project == null) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
@@ -308,9 +320,71 @@ public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
         if (!(project.getStatus() == ProjectStatusEnum.PODCAST || project.getStatus() == ProjectStatusEnum.PUBLISHED)) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_HAVE_PODCAST);
         }
-        return null;
+        // 构建返回对象
+        FinalProjectVo finalProjectVo = new FinalProjectVo();
+        BeanUtils.copyProperties(project, finalProjectVo);
+        finalProjectVo.setProjectId(projectId);
+        List<FinalEpisodeVo> finalEpisodeVoList = new ArrayList<>();
+        List<ProjectRole> projectRoleList = projectRoleService.list(new QueryWrapper<ProjectRole>().eq("project_id", projectId));
+        if (projectRoleList == null || projectRoleList.isEmpty()) {
+            throw new RuntimeException(CommonErrorMessage.ROLES_NOT_FOUND);
+        }
+        List<Episode> episodeList = episodeService.list(new QueryWrapper<Episode>().eq("project_id", projectId).orderByAsc("sequence"));
+        if (episodeList == null || episodeList.isEmpty()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_HAVE_PODCAST);
+        }
+        episodeList.forEach(episode -> {
+            FinalEpisodeVo finalEpisodeVo = new FinalEpisodeVo();
+            BeanUtils.copyProperties(episode, finalEpisodeVo);
+
+            List<EpisodeContentWithCharacterNameVo> contentList = new ArrayList<>();
+            episode.getContent().forEach(content -> {
+                EpisodeContentWithCharacterNameVo contentVo = new EpisodeContentWithCharacterNameVo();
+                BeanUtil.copyProperties(content, contentVo);
+                // 设置CharacterName，从角色列表中查找
+                ProjectRole role = projectRoleList.stream()
+                       .filter(r -> r.getTimbre().equals(content.getRole()))
+                       .findFirst()
+                       .orElse(null);
+                if (role == null) {
+                    throw new RuntimeException(CommonErrorMessage.ROLE_NOT_FOUND);
+                }
+                contentVo.setCharacterName(role.getCharacterName());
+                contentList.add(contentVo);
+            });
+            finalEpisodeVo.setContent(contentList);
+            finalEpisodeVoList.add(finalEpisodeVo);
+        });
+        finalProjectVo.setEpisodes(finalEpisodeVoList);
+        return finalProjectVo;
     }
 
+    @Override
+    @Transactional
+    public void deleteProject(long projectId) {
+
+        Project project = this.getById(projectId);
+        if (project == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+
+        // 1. 删除所有的Episode
+        episodeService.remove(new QueryWrapper<Episode>().eq("project_id", projectId));
+
+        // 2. 删除所有的ProjectRole
+        projectRoleService.remove(new QueryWrapper<ProjectRole>().eq("project_id", projectId));
+
+        // 3. 删除项目
+        this.removeById(projectId);
+
+        // 4. 删除分享和收藏的项目（暂不实现）
+
+        // 5. 发送 WebSocket 通知
+        WebSocketServer.sendMessage(
+                StpUtil.getLoginIdAsString(),
+                WebSocketMessageTypeConstant.PROJECT_DELETE + String.format("项目[%s]已删除", project.getTitle())
+        );
+    }
 
     // 异步方法：负责生成剧本和后续操作
     @Override
@@ -361,7 +435,7 @@ public UserScriptWithProjectIdAndCharacterNameVo getUserScript(Long projectId) {
             WebSocketServer.sendMessage(
                     generateAiUserScriptDto.getUserId().toString(),
                     String.format(
-                            WebSocketMessageTypeConstant.AI_SCRIPT_GENERATE_COMPLETE + "项目（%s）的剧本生成成功",
+                            WebSocketMessageTypeConstant.AI_SCRIPT_GENERATE_COMPLETE + "项目[%s]的剧本生成成功",
                             project.getTitle()
                     )
             );

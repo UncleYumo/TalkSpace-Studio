@@ -16,13 +16,13 @@ export const useWebSocketMessageStore = defineStore("WebSocketMessageStore", () 
     const messageList = ref<WebSocketMessageStoreType[]>([
         {
             id: generateUUID16(),
-            message: "欢迎使用Talkspace Studio",
+            message: "欢迎使用Talkspace Studio（默认）",
             createTime: new Date().toLocaleString()
         }
     ]);
 
     const addMessage = (msg: string) => {
-        messageList.value.push({
+        messageList.value.unshift({
             id: generateUUID16(),
             message: msg,
             createTime: new Date().toLocaleString()
@@ -31,6 +31,7 @@ export const useWebSocketMessageStore = defineStore("WebSocketMessageStore", () 
 
     const resetMessageList = () => {
         messageList.value = [];
+        addMessage("欢迎使用Talkspace Studio（默认）");
     }
 
     const removeMessageById = (id: string) => {

@@ -5,6 +5,7 @@ import cn.uncleyumo.talkspacestudio.entity.temp.CountTokenDto;
 import cn.uncleyumo.talkspacestudio.server.WebSocketServer;
 import cn.uncleyumo.talkspacestudio.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,17 +61,8 @@ public class TestController {
 
     @GetMapping("/testWebsocket")
     @Operation(summary = "测试websocket接口", description = "测试websocket接口的说明")
-    public SaResult testWebsocket(String userId) {
-        log.warn("testWebsocket userId: " + userId);
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            WebSocketServer.sendMessage(userId, "这是发送给用户" + userId + "的消息");
-            log.warn("testWebsocket message send success");
-        });
+    public SaResult testWebsocket(@Parameter(required = true) String userId, @Parameter(required = true) String message) {
+        WebSocketServer.sendMessage(userId, message);
         return SaResult.ok("测试websocket接口成功" + LocalDateTime.now());
     }
 }

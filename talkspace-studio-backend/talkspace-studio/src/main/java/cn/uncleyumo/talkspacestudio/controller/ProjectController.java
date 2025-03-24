@@ -122,8 +122,19 @@ public class ProjectController {
             @Parameter(description = "项目ID", required = true)
             @PathParam("projectId") @PathVariable String projectId
     ) {
-        List<FinalProjectVo> finalProjectList = projectService.getFinalProjectList(Long.parseLong(projectId));
-        return SaResult.data("暂未开放");
+        FinalProjectVo finalProject = projectService.getFinalProjectVo(Long.parseLong(projectId));
+        return SaResult.data(finalProject);
+    }
+
+    @DeleteMapping("delete_project/{projectId}")
+    @Operation(summary = "删除项目")
+    public SaResult deleteProject(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        log.info("删除项目：{}", projectId);
+        projectService.deleteProject(Long.parseLong(projectId));
+        return SaResult.ok("已彻底删除指定播客项目");
     }
 
 }

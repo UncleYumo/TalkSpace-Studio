@@ -114,8 +114,11 @@ const goToGithubPage = () => {
             </a-menu-item>
         </a-menu>
     </a-layout-header>
-    <a-modal v-model:open="isMessageModalVisible" title="消息通知" @ok="isMessageModalVisible = false"
-        :okText="'确认'" :cancelText="'取消'"
+    <a-modal v-model:open="isMessageModalVisible" title="消息通知"
+        @ok="useWebSocketMessageStore().resetMessageList()"
+        @cancel="isMessageModalVisible = false"
+        :okText="'清空历史消息'"
+        :cancelText="'确认'"
     >
         <a-table
             :columns="messageColumns"

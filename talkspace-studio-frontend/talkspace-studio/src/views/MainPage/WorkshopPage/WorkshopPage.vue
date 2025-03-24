@@ -131,7 +131,7 @@ const doCreateProject = async () => {
       const result = await createProjectApi(formState);
       if (result) {
         doResetData();
-        router.push('my-creations-page');
+        await router.push('my-creations-page');
       }
     }
     isLoading.value = false;

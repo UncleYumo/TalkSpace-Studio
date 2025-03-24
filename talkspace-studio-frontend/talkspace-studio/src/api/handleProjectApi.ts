@@ -1,5 +1,5 @@
 import instance from "./request";
-import type { AiGenerateScriptApiType, createProjectApiType, generatePodcastApiType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
+import type { AiGenerateScriptApiType, createProjectApiType, FinalProjectType, generatePodcastApiType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
 
 export const createProjectApi = async (data: createProjectApiType) => {
     try {
@@ -65,6 +65,26 @@ export const updateProjectScriptApi = async (data: UserScriptWithCharacterNameAp
 export const aiGeneratePodcastApi = async (data: generatePodcastApiType) => {
     try {
         const result = await instance.post("/project/generate_podcast_ai", data);
+        return result.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const getFinalProjectApi = async (projectId: string) => {
+    try {
+        const result = await instance.get<FinalProjectType>(`/project/get_final_project_list/${projectId}`);
+        return result.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const deleteProjectApi = async (projectId: string) => {
+    try {
+        const result = await instance.delete<string>(`/project/delete_project/${projectId}`);
         return result.data;
     } catch (error) {
         console.error(error);

@@ -37,5 +37,7 @@ public interface ProjectService {
 
     GenerateEpisodesDto generateEpisodes(GeneratePodcastDto generatePodcastDto);
 
-    List<FinalProjectVo> getFinalProjectList(long l);
+    FinalProjectVo getFinalProjectVo(long projectId);
+
+    void deleteProject(long projectId);
 }

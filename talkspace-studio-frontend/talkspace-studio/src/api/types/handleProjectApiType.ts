@@ -63,3 +63,23 @@ export interface generatePodcastApiType {
     pitchRate: number;
     volume: number;
 }
+
+// 新增顶层响应接口
+export interface FinalProjectType {
+    projectId: string;
+    userId: string;
+    language: string;
+    userPrompt: string;
+    episodeCount: number;
+    singleDuration: number;
+    episodes: FinalEpisodeType[]; // 新增剧集详情数组
+  }
+  
+  // 剧集详情接口
+  export interface FinalEpisodeType {
+    subTitle: string;
+    content: ContentWithCharacterNameType[]; // 对话内容数组
+    duration: number;
+    audioUrl: string;
+    sequence: number;
+  }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import type { ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from '../../../api/types/handleProjectApiType';
-import { aiGeneratePodcastApi, aiGenerateScriptApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
+import PodcastPlayer from '../../../components/PodcastPlayer.vue';
+import type { FinalProjectType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from '../../../api/types/handleProjectApiType';
+import { aiGeneratePodcastApi, aiGenerateScriptApi, deleteProjectApi, getFinalProjectApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { formatCreateTime } from '../../../utils/TimeUtil';
 import { message } from 'ant-design-vue';
@@ -23,9 +24,14 @@ const statusMapping: Record<ProjectStatus, string> = {
     PUBLISHED: '已发布',
 };
 
+const finalProjectData = ref<FinalProjectType>();
+const isShowPlayer = ref(false);
+
 const breadcrumbPath = ref<string[]>(['首页', '我的创作']);
 
 const isLoading = ref<boolean>(false);
+
+const isDeleteBtnLoading = ref<boolean>(false);
 
 const projectListTableData = ref<ProjectListApiType[]>([]);
 // 新增：用于跟踪每个项目的按钮加载状态
@@ -109,6 +115,13 @@ const editScript = async (projectId: string) => {
         refreshProjectRoleList(projectId)
     ]);
 };
+
+const deleteProject = async (projectId: string) => {
+    isDeleteBtnLoading.value = true;
+    await deleteProjectApi(projectId);
+    isDeleteBtnLoading.value = false;
+}
+
 // 新增响应式变量
 const editableScript = ref<UserScriptWithCharacterNameApiType['userScriptWithCharacterName']>({
     title: '',
@@ -193,7 +206,7 @@ const saveScript = async () => {
 
     // 调用更新接口
     const result = await updateProjectScriptApi(scriptData);
-    
+
     // 处理成功响应
     if (result) {
         message.success('剧本保存成功');
@@ -205,6 +218,19 @@ const saveScript = async () => {
     isLoading.value = false;
 };
 
+const previewPodcast = async (projectId: string) => {
+
+    const result = await getFinalProjectApi(projectId);
+    if (result) {
+        finalProjectData.value = result;
+        isShowPlayer.value = true;
+    }
+}
+
+const refreshPage = () => {
+    window.location.reload();
+};
+
 onMounted(async () => {
     await refreshProjectListTableData();
     // 默认加载最后一个项目的编辑页面
@@ -212,6 +238,7 @@ onMounted(async () => {
         editScript(projectListTableData.value[projectListTableData.value.length - 1].id);
     }
 });
+
 </script>
 
 <template>
@@ -225,7 +252,7 @@ onMounted(async () => {
         <a-layout-content class="h-full">
             <a-row :gutter="[24, 24]">
                 <!-- 左侧卡片区域 -->
-                <a-col :span="6" class="h-full">
+                <a-col :span="7" class="h-full">
                     <div class="flex flex-col h-full">
                         <div class="flex flex-wrap gap-4 overflow-y-auto h-180">
                             <div v-if="projectListTableData.length === 0">
@@ -236,11 +263,11 @@ onMounted(async () => {
                             </div>
                             <h1>播客模板</h1>
                             <div v-if="projectListTableData.length !== 0" v-for="project in projectListTableData"
-                                :key="project.id" class="w-60">
+                                :key="project.id" class="w-70">
                                 <a-card :title="project.title" class="w-full">
                                     <template #extra>
                                         <a-button type="link"
-                                            :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)"
+                                            :disabled="['DRAFT'].includes(project.status)"
                                             @click="editScript(project.id)">
                                             编辑剧本
                                         </a-button>
@@ -274,24 +301,33 @@ onMounted(async () => {
                                         </a-row>
                                     </a-col>
                                     <!-- 生成剧本按钮 -->
-                                    <a-button type="link" :loading="buttonLoadingStatus[project.id]"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)"
+                                    <a-button type="link" :loading="buttonLoadingStatus[project.id]" :disabled="!true"
                                         @click="generateUserScript(project.id, project.userId)">
                                         生成剧本
                                     </a-button>
                                     <!-- 其他按钮保持原有逻辑 -->
-                                    <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT'].includes(project.status)"
+                                    <a-popconfirm
+                                        title="确定删除该模板吗？"
+                                        ok-text="确定"
+                                        cancel-text="取消"
+                                        @confirm="deleteProject(project.id)"
                                     >
-                                        删除模板</a-button>
+                                        <a-button type="link" :disabled="!true">
+                                        删除模板
+                                    </a-button>
+                                    </a-popconfirm>
                                     <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT', 'DRAFT'].includes(project.status)"
-                                        @click="generatePodcast(project.id, project.userId)"
-                                    >
-                                        生成播客</a-button>
-                                    <a-button type="link"
-                                        :disabled="['DRAFT_SCRIPT', 'PODCAST_SCRIPT', 'DRAFT'].includes(project.status)">公开发布</a-button>
-
+                                        :disabled="!['DRAFT_SCRIPT', 'SCRIPT', 'PODCAST_SCRIPT', 'PODCAST', 'PUBLISHED'].includes(project.status)"
+                                        @click="generatePodcast(project.id, project.userId)">
+                                        生成播客
+                                    </a-button>
+                                    <a-button type="link" :disabled="!['PUBLISHED', 'PODCAST'].includes(project.status)"
+                                        @click="previewPodcast(project.id)">
+                                        预览播客
+                                    </a-button>
+                                    <a-button type="link" :disabled="!['PODCAST'].includes(project.status)">
+                                        公开发布
+                                    </a-button>
                                 </a-card>
                             </div>
                         </div>
@@ -299,10 +335,10 @@ onMounted(async () => {
                 </a-col>
 
                 <!-- 右侧编辑器区域滚动条修复 -->
-                <a-col :span="18" class="h-full mt-7 p-2 overflow-y-auto"> <!-- 新增overflow-y-auto -->
+                <a-col :span="17" class="h-full mt-7 p-2 overflow-y-auto"> <!-- 新增overflow-y-auto -->
                     <a-card v-if="userScript" title="剧本编辑器" :bordered="false" class="h-full">
                         <!-- 剧本标题 -->
-                        <p class="text-2xl font-bold mb-4">{{editableScript.title}}</p>
+                        <p class="text-2xl font-bold mb-4">{{ editableScript.title }}</p>
                         <!-- 补充placeholder避免空状态样式问题 -->
                         <!-- 剧集列表 -->
                         <a-collapse v-model:activeKey="activeEpisodeKeys" class="mb-6 max-h-[68vh] overflow-y-auto">
@@ -317,9 +353,14 @@ onMounted(async () => {
                                         class="mb-4 p-4 rounded">
                                         <div class="flex justify-between items-center mb-2">
                                             <span class="font-medium">
-                                                角色：{{ content.role }}（{{ content.characterName }}）
+                                                {{ content.characterName }}（音色：{{ content.role }}）
                                             </span>
-                                            <a-popconfirm title="确定删除该内容？" @confirm="removeContent(epIndex, conIndex)">
+                                            <a-popconfirm
+                                                title="确定删除该条对话吗？"
+                                                ok-text="确定"
+                                                cancel-text="取消"
+                                                @confirm="removeContent(epIndex, conIndex)">
+
                                                 <a-button type="link" danger>删除</a-button>
                                             </a-popconfirm>
                                         </div>
@@ -329,8 +370,7 @@ onMounted(async () => {
 
                                     <!-- 新增内容按钮 -->
                                     <a-button type="dashed" block @click="showAddContentModal(epIndex)">
-                                        <template #icon><plus-outlined /></template>
-                                        <p class="font-bold">新增内容</p>
+                                        <span>新增内容</span>
                                     </a-button>
                                 </a-collapse-panel>
                             </a-collapse>
@@ -345,7 +385,7 @@ onMounted(async () => {
                 </a-col>
 
                 <!-- 新增内容模态框 -->
-                <a-modal v-model:visible="addContentVisible" title="新增内容" :footer="null" width="600px">
+                <a-modal v-model:open="addContentVisible" title="新增内容" :footer="null" width="600px">
                     <a-form :model="newContent" layout="vertical">
                         <a-form-item label="选择角色" required>
                             <a-select v-model:value="newContent.role" placeholder="请选择角色" class="w-full">
@@ -368,4 +408,10 @@ onMounted(async () => {
             </a-row>
         </a-layout-content>
     </a-layout>
+
+    <a-modal v-model:open="isShowPlayer" title="播客预览" width="900px" @ok="isShowPlayer = false" @cancel="refreshPage"
+        :okText="'关闭'" centered :cancelText="'刷新'">
+        <PodcastPlayer :finalProject="finalProjectData" />
+    </a-modal>
+
 </template>

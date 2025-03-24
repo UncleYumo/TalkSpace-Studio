@@ -19,9 +19,10 @@ public class CommonErrorMessage {
     public static final String UPLOAD_FILE_ERROR = "上传文件失败";
     public static final String PROJECT_NOT_FOUND = "项目不存在";
     public static final String PROJECT_ROLE_NOT_FOUND = "项目角色不存在";
-    public static final String ROLES_NOT_FOUND = "角色不存在";
+    public static final String ROLES_NOT_FOUND = "角色列表不存在";
     public static final String GENERAL_ERROR = "系统错误";
     public static final String SCRIPT_NOT_GENERATED = "脚本生成失败";
     public static final String USER_SCRIPT_NOT_GENERATED = "该模板未生成过可用剧本";
     public static final String PROJECT_NOT_HAVE_PODCAST = "该项目暂未生成可用播客";
+    public static final String ROLE_NOT_FOUND = "指定的角色不存在";
 }

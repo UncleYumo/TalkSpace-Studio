@@ -1,6 +1,7 @@
 package cn.uncleyumo.talkspacestudio.entity.vo.caltokenrequest;
 
 import cn.uncleyumo.talkspacestudio.entity.vo.EpisodeContentVo;
+import cn.uncleyumo.talkspacestudio.entity.vo.EpisodeContentWithCharacterNameVo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
@@ -37,7 +38,7 @@ public class FinalEpisodeVo implements Serializable {
      * 剧本内容
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<EpisodeContentVo> content;
+    private List<EpisodeContentWithCharacterNameVo> content;
     /**
      * 音频时常（秒）
      */
