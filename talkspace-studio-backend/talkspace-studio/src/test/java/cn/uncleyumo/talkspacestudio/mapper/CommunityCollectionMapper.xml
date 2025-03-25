@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.uncleyumo.talkspacestudio.mapper.CommunityCollectionMapper">
+
+    <select id="getCollectionCountsByProjectIds" resultType="java.lang.Long">
+        SELECT
+        COUNT(c.project_id) AS count
+        FROM (
+        <foreach collection="projectIds" item="id" separator=" UNION ALL ">
+            SELECT #{id} AS project_id
+        </foreach>
+        ) AS temp
+        LEFT JOIN community_collection c
+        ON temp.project_id = c.project_id
+        GROUP BY temp.project_id
+        ORDER BY FIELD(temp.project_id,
+        <foreach collection="projectIds" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+</mapper>

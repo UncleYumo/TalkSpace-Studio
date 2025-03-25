@@ -1,5 +1,5 @@
 import instance from "./request";
-import type { AiGenerateScriptApiType, createProjectApiType, FinalProjectType, generatePodcastApiType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
+import type { AiGenerateScriptApiType, createProjectApiType, FinalProjectType, generatePodcastApiType, GetPublishedProjectListApiCallbackType, GetPublishedProjectListApiType, ProjectListApiType, ProjectRoleListApiType, PublishedProjectApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
 
 export const createProjectApi = async (data: createProjectApiType) => {
     try {
@@ -85,6 +85,39 @@ export const getFinalProjectApi = async (projectId: string) => {
 export const deleteProjectApi = async (projectId: string) => {
     try {
         const result = await instance.delete<string>(`/project/delete_project/${projectId}`);
+        return result.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const publishProjectApi = async (projectId: string) => {
+    try {
+        await instance.put<string>(`/project/publish_project/${projectId}`);
+        return true;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const cancelPublishProjectApi = async (projectId: string) => {
+    try {
+        await instance.put<string>(`/project/cancel_publish_project/${projectId}`);
+        return true;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const getPublishedProjectListApi = async (data: GetPublishedProjectListApiType) => {
+    try {
+        const result = await instance.post<GetPublishedProjectListApiCallbackType>(`/project/${data.path}`, {
+            pageSize: data.pageSize,
+            pageNum: data.pageNum,
+        });
         return result.data;
     } catch (error) {
         console.error(error);

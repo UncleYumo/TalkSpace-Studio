@@ -67,18 +67,18 @@ CREATE TABLE `episode`
 
 DROP TABLE IF EXISTS `community_publish`;
 
--- 社区发布表
-CREATE TABLE `community_publish`
-(
-    `id`           BIGINT PRIMARY KEY,
-    `project_id`   BIGINT   NOT NULL,
-    `user_id`      BIGINT   NOT NULL,
-    `is_template`  TINYINT(1)        DEFAULT 0 COMMENT '是否作为模板共享',
-    `publish_time` DATETIME          DEFAULT CURRENT_TIMESTAMP,
-    `create_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY `uniq_project` (`project_id`)
-) COMMENT ='社区发布记录';
+# -- 社区发布表
+# CREATE TABLE `community_publish`
+# (
+#     `id`           BIGINT PRIMARY KEY,
+#     `project_id`   BIGINT   NOT NULL,
+#     `user_id`      BIGINT   NOT NULL,
+#     `is_template`  TINYINT(1)        DEFAULT 0 COMMENT '是否作为模板共享',
+#     `publish_time` DATETIME          DEFAULT CURRENT_TIMESTAMP,
+#     `create_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+#     `update_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+#     UNIQUE KEY `uniq_project` (`project_id`)
+# ) COMMENT ='社区发布记录';
 
 DROP TABLE IF EXISTS `community_collection`;
 
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `community_collection`
     `id`           BIGINT PRIMARY KEY,
     `user_id`      BIGINT   NOT NULL,
     `project_id`   BIGINT   NOT NULL,
-    `collect_time` DATETIME          DEFAULT CURRENT_TIMESTAMP,
+#     `collect_time` DATETIME          DEFAULT CURRENT_TIMESTAMP,
     `create_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE KEY `uniq_user_project` (`user_id`, `project_id`)

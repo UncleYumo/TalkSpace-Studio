@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
-            <version>6.3.2</version> <!-- 版本需与Spring Boot兼容 -->
+            <version>6.4.4</version> <!-- 版本需与Spring Boot兼容 -->
         </dependency>
 
         <dependency>
@@ -107,6 +107,13 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.10.1</version>
+        </dependency>
+
+        <!-- jdk 11+ 引入可选模块 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
             <version>3.5.10.1</version>
         </dependency>
 

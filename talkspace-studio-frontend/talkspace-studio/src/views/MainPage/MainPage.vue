@@ -9,7 +9,16 @@ import { RouterView } from 'vue-router';
 import { useWebSocketMessageStore } from '../../stores/WebSocketMessageStore';
 import router from '../../router';
 import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
-const open = ref<boolean>(useUserInfoStore().userInfo.id === "");
+import { storeToRefs } from 'pinia';
+import { useMainPageHeaderMenuKeyStore } from '../../stores/MainPageHeaderMenuKeyStore';
+
+const userInfoStore = useUserInfoStore();
+const { userInfo } = storeToRefs(userInfoStore);
+
+const mainPageHeaderMenuKeyStore = useMainPageHeaderMenuKeyStore();
+const { currentKey } = storeToRefs(mainPageHeaderMenuKeyStore);
+
+const open = ref<boolean>(userInfo.value.id === "");
 
 interface webSocketModalMessageDataType {
   title: string;
@@ -27,6 +36,7 @@ const webSocketModalSuccess = (data: webSocketModalMessageDataType) => {
     cancelText: '关闭',
     onOk() {
       router.push({ name: 'my-creations-page' }).then(() => {
+        currentKey.value = ['my-creations-page'];
         window.location.reload();  // 仅在跳转完成后刷新
       });
     },
@@ -45,6 +55,7 @@ const webSocketModalWarning = (data: webSocketModalMessageDataType) => {
     cancelText: '关闭',
     onOk() {
       router.push({ name: 'my-creations-page' }).then(() => {
+        currentKey.value = ['my-creations-page'];
         window.location.reload();  // 仅在跳转完成后刷新
       });
     },

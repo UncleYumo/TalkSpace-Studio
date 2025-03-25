@@ -79,7 +79,7 @@ watch(currentEpisodeIndex, async () => {
       });
     }, { once: true });
   }
-});
+}, { deep: true });
 
 const togglePlay = () => {
   if (isPlaying.value) {

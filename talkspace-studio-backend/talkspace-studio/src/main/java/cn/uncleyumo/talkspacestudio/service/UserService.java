@@ -4,6 +4,7 @@ import cn.uncleyumo.talkspacestudio.entity.dto.UserLoginDto;
 import cn.uncleyumo.talkspacestudio.entity.dto.UserRegisterDto;
 import cn.uncleyumo.talkspacestudio.entity.dto.UserUpdateDto;
 import cn.uncleyumo.talkspacestudio.entity.pojo.User;
+import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.validation.Valid;
 
 /**
@@ -15,7 +16,7 @@ import jakarta.validation.Valid;
  * @description
  */
 
-public interface UserService {
+public interface UserService extends IService<User> {
 
     User login(UserLoginDto userLoginDto);
 

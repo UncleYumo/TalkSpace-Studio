@@ -3,10 +3,8 @@ package cn.uncleyumo.talkspacestudio.controller;
 import cn.dev33.satoken.util.SaResult;
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
-import cn.uncleyumo.talkspacestudio.entity.vo.FinalProjectVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
+import cn.uncleyumo.talkspacestudio.entity.vo.*;
+import cn.uncleyumo.talkspacestudio.service.CommunityCollectionService;
 import cn.uncleyumo.talkspacestudio.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,7 +13,6 @@ import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,10 +33,12 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final CommunityCollectionService communityCollectionService;
 
     @Autowired
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, CommunityCollectionService communityCollectionService) {
         this.projectService = projectService;
+        this.communityCollectionService = communityCollectionService;
     }
 
     @PostMapping("/create_project")
@@ -137,4 +136,70 @@ public class ProjectController {
         return SaResult.ok("已彻底删除指定播客项目");
     }
 
+    @PostMapping("community_works")
+    @Operation(summary = "获取社区作品列表")
+    public SaResult getCommunityWorks(@RequestBody PublishedProjectDto publishedProjectDto) {
+        PageResult<List<PublishedProjectVo>> pageResult = projectService.getCommunityWorks(publishedProjectDto);
+        return SaResult.data(pageResult);
+    }
+
+    @PostMapping("my_published_works")
+    @Operation(summary = "获取我发布的作品列表")
+    public SaResult getMyPublishedWorks(@RequestBody PublishedProjectDto publishedProjectDto) {
+//        PageResult<List<PublishedProjectVo>> pageResult = projectService.getCommunityWorks(publishedProjectDto);
+//        return SaResult.data(pageResult);
+        return SaResult.ok("暂未实现：获取我发布的作品列表");
+    }
+
+    @PostMapping("my_collection_works")
+    @Operation(summary = "获取我收藏的作品列表")
+    public SaResult getMyCollectionWorks(@RequestBody PublishedProjectDto publishedProjectDto) {
+//        PageResult<List<PublishedProjectVo>> pageResult = projectService.getCommunityWorks(publishedProjectDto);
+//        return SaResult.data(pageResult);
+        return SaResult.ok("暂未实现：获取我收藏的作品列表");
+    }
+
+    @PutMapping("publish_project/{projectId}")
+    @Operation(summary = "发布项目")
+    public SaResult publishProject(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        log.info("发布项目：{}", projectId);
+        projectService.publishProject(Long.parseLong(projectId));
+        return SaResult.ok("已发布指定播客项目");
+    }
+
+    @PutMapping("cancel_publish_project/{projectId}")
+    @Operation(summary = "取消发布项目")
+    public SaResult cancelPublishProject(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        log.info("取消发布项目：{}", projectId);
+        projectService.cancelPublishProject(Long.parseLong(projectId));
+        return SaResult.ok("已取消发布指定播客项目");
+    }
+
+    @PutMapping("collect_project/{projectId}")
+    @Operation(summary = "收藏项目")
+    public SaResult collectProject(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        log.info("收藏项目：{}", projectId);
+        communityCollectionService.collectProject(Long.parseLong(projectId));
+        return SaResult.ok("已收藏该项目");
+    }
+
+    @PutMapping("cancel_collect_project/{projectId}")
+    @Operation(summary = "取消收藏项目")
+    public SaResult cancelCollectProject(
+            @Parameter(description = "项目ID", required = true)
+            @PathParam("projectId") @PathVariable String projectId
+    ) {
+        log.info("收藏项目：{}", projectId);
+        communityCollectionService.cancelCollectProject(Long.parseLong(projectId));
+        return SaResult.ok("已取消收藏该项目");
+    }
 }

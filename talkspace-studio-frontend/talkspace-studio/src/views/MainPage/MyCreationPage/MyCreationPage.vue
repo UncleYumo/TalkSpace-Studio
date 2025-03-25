@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import PodcastPlayer from '../../../components/PodcastPlayer.vue';
 import type { FinalProjectType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from '../../../api/types/handleProjectApiType';
-import { aiGeneratePodcastApi, aiGenerateScriptApi, deleteProjectApi, getFinalProjectApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
+import { aiGeneratePodcastApi, aiGenerateScriptApi, cancelPublishProjectApi, deleteProjectApi, getFinalProjectApi, getProjectListApi, getProjectRoleListApi, getProjectScriptApi, publishProjectApi, updateProjectScriptApi } from '../../../api/handleProjectApi';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { formatCreateTime } from '../../../utils/TimeUtil';
 import { message } from 'ant-design-vue';
@@ -227,6 +227,20 @@ const previewPodcast = async (projectId: string) => {
     }
 }
 
+const cancelPublishProject = async (projectId: string) => {
+    const result = await cancelPublishProjectApi(projectId);
+    if (result) {
+        await refreshProjectListTableData();
+    }
+}
+
+const publishProject = async (projectId: string) => {
+    const result = await publishProjectApi(projectId);
+    if (result) {
+        await refreshProjectListTableData();
+    }
+}
+
 const refreshPage = () => {
     window.location.reload();
 };
@@ -261,7 +275,11 @@ onMounted(async () => {
                                 </a-space>
                                 <a-empty />
                             </div>
-                            <h1>播客模板</h1>
+                            <a-space>
+                                <h1>播客模板</h1>
+                            </a-space>
+                            <!-- <a-divider style="margin: 0;"></a-divider> -->
+                            <br/>
                             <div v-if="projectListTableData.length !== 0" v-for="project in projectListTableData"
                                 :key="project.id" class="w-70">
                                 <a-card :title="project.title" class="w-full">
@@ -325,8 +343,20 @@ onMounted(async () => {
                                         @click="previewPodcast(project.id)">
                                         预览播客
                                     </a-button>
-                                    <a-button type="link" :disabled="!['PODCAST'].includes(project.status)">
+                                    <a-button
+                                        v-if="['PODCAST'].includes(project.status)"
+                                        type="link"
+                                        :disabled="!['PODCAST'].includes(project.status)"
+                                        @click="publishProject(project.id)"
+                                    >
                                         公开发布
+                                    </a-button>
+                                    <a-button
+                                        v-else type="link"
+                                        :disabled="!['PUBLISHED'].includes(project.status)"
+                                        @click="cancelPublishProject(project.id)"
+                                    >
+                                        取消发布
                                     </a-button>
                                 </a-card>
                             </div>

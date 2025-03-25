@@ -1,3 +1,5 @@
+import type { NumberLiteralType } from "typescript";
+
 export type createProjectApiType = {
     userPrompt: string;
     title: string;
@@ -82,4 +84,32 @@ export interface FinalProjectType {
     duration: number;
     audioUrl: string;
     sequence: number;
+  }
+
+  export interface GetPublishedProjectListApiType {
+    pageSize: number;
+    pageNum: number;
+    path: string;
+  }
+
+  export interface GetPublishedProjectListApiCallbackType {
+    pageNum: number;
+    pageSize: number;
+    totalCount: number;
+    totalPage: number;
+    records: PublishedProjectApiType[];
+  }
+
+  export interface PublishedProjectApiType {
+    projectId: string;  // 项目ID
+    userId: string;  // 用户ID
+    username: string;  // 用户名
+    avatar: string;  // 用户头像
+    gender: number;
+    title: string;  // 播客标题
+    language: string;  // 语言风格
+    userPrompt: string;  // 用户提示词
+    episodeCount: number;  // 分集总数
+    collectionCount: string;  // 收藏数
+    publishedTime: number[];  // ISO 8601 格式日期字符串
   }

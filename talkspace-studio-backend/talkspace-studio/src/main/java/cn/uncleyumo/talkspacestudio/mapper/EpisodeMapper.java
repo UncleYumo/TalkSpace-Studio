@@ -4,6 +4,8 @@ import cn.uncleyumo.talkspacestudio.entity.pojo.Episode;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * @author uncle_yumo
  * @fileName EpisodeMapper

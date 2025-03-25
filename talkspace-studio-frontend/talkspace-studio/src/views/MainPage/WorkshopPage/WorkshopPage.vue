@@ -10,8 +10,13 @@ import type { ttsTimbreListApiType } from '../../../api/types/handleStaticResour
 import { ttsTimbreListApi } from '../../../api/handleStaticResourceApi';
 import { createProjectApi } from '../../../api/handleProjectApi';
 import router from '../../../router';
+import { useMainPageHeaderMenuKeyStore } from '../../../stores/MainPageHeaderMenuKeyStore';
+import { storeToRefs } from 'pinia';
 
 const formRef = ref();
+
+const mainPageHeaderMenuKeyStore = useMainPageHeaderMenuKeyStore();
+const { currentKey } = storeToRefs(mainPageHeaderMenuKeyStore);
 
 const breadcrumbPath = ref<string[]>(['首页', '创意工坊']);
 
@@ -131,7 +136,9 @@ const doCreateProject = async () => {
       const result = await createProjectApi(formState);
       if (result) {
         doResetData();
-        await router.push('my-creations-page');
+        await router.push('my-creations-page').then(()=> {
+          currentKey.value = ['my-creations-page'];
+        });
       }
     }
     isLoading.value = false;
@@ -156,7 +163,7 @@ onMounted(() => {
     </a-breadcrumb-item>
   </a-breadcrumb>
   <a-layout class="mt-4 rounded-4xl">
-    <a-row :gutter="24" class="p-6">
+    <a-row :gutter="24" class="p-2">
       <!-- 左侧表单区域 -->
       <a-col :span="10">
         <a-layout class="rounded-lg h-full shadow-inner">
@@ -241,7 +248,7 @@ onMounted(() => {
           <a-layout-content class="px-4 py-4">
 
             <!-- 音色列表 -->
-            <a-table :columns="ttsTimbreListColumns" :data-source="ttsTimbreListTableData" :scroll="{ y: 600 }"
+            <a-table :columns="ttsTimbreListColumns" :data-source="ttsTimbreListTableData" :scroll="{ y: 400 }"
               class="rounded-lg overflow-hidden">
 
               <!-- 自定义列模板 -->

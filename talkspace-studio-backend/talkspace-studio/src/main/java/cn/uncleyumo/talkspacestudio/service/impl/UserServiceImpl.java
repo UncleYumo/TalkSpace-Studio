@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 

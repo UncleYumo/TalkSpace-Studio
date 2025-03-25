@@ -7,26 +7,23 @@ import cn.uncleyumo.talkspacestudio.constant.CommonErrorMessage;
 import cn.uncleyumo.talkspacestudio.constant.UserScriptLlmPromptConstant;
 import cn.uncleyumo.talkspacestudio.constant.WebSocketMessageTypeConstant;
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
-import cn.uncleyumo.talkspacestudio.entity.pojo.Episode;
-import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
-import cn.uncleyumo.talkspacestudio.entity.pojo.ProjectRole;
+import cn.uncleyumo.talkspacestudio.entity.pojo.*;
 import cn.uncleyumo.talkspacestudio.entity.vo.*;
-import cn.uncleyumo.talkspacestudio.entity.pojo.UserScript;
 import cn.uncleyumo.talkspacestudio.entity.vo.caltokenrequest.FinalEpisodeVo;
 import cn.uncleyumo.talkspacestudio.enums.AliyunLlmModelEnum;
 import cn.uncleyumo.talkspacestudio.enums.ProjectStatusEnum;
 import cn.uncleyumo.talkspacestudio.mapper.ProjectMapper;
 import cn.uncleyumo.talkspacestudio.properties.AliyunTtsProperty;
 import cn.uncleyumo.talkspacestudio.server.WebSocketServer;
-import cn.uncleyumo.talkspacestudio.service.EpisodeService;
-import cn.uncleyumo.talkspacestudio.service.ProjectRoleService;
-import cn.uncleyumo.talkspacestudio.service.ProjectService;
+import cn.uncleyumo.talkspacestudio.service.*;
 import cn.uncleyumo.talkspacestudio.utils.AliyunLlmUtil;
 import cn.uncleyumo.talkspacestudio.utils.AliyunTtsUtil;
 import cn.uncleyumo.talkspacestudio.utils.MinioUtil;
 import com.alibaba.dashscope.audio.ttsv2.SpeechSynthesisAudioFormat;
 import com.alibaba.dashscope.audio.ttsv2.SpeechSynthesisParam;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +34,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -64,9 +58,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private final EpisodeService episodeService;
     private final AliyunTtsProperty aliyunTtsProperty;
     private final AliyunLlmUtil aliyunLlmUtil;
+    private final CommunityCollectionService communityCollectionService;
+    private final UserService userService;
 
     @Autowired
-    public ProjectServiceImpl(AliyunLlmUtil aliyunLlmUtil, ProjectRoleService projectRoleService, ProjectMapper projectMapper, AliyunTtsUtil aliyunTtsUtil, MinioUtil minioUtil, EpisodeService episodeService, AliyunTtsProperty aliyunTtsProperty, AliyunLlmUtil aliyunLlmUtil1) {
+    public ProjectServiceImpl(AliyunLlmUtil aliyunLlmUtil, ProjectRoleService projectRoleService,
+                              ProjectMapper projectMapper, AliyunTtsUtil aliyunTtsUtil,
+                              MinioUtil minioUtil, EpisodeService episodeService,
+                              AliyunTtsProperty aliyunTtsProperty, AliyunLlmUtil aliyunLlmUtil1,
+                              CommunityCollectionService communityCollectionService,
+                              UserService userService) {
         this.projectRoleService = projectRoleService;
         this.projectMapper = projectMapper;
         this.aliyunTtsUtil = aliyunTtsUtil;
@@ -74,6 +75,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         this.episodeService = episodeService;
         this.aliyunTtsProperty = aliyunTtsProperty;
         this.aliyunLlmUtil = aliyunLlmUtil1;
+        this.communityCollectionService = communityCollectionService;
+        this.userService = userService;
     }
 
     @Override
@@ -106,6 +109,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         Project p = this.getById(generateEpisodesDto.getProjectId());
         if (p == null) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+
+        if (p.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
         }
 
         // 删除原有剧本
@@ -181,6 +188,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                 throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
             }
             log.info("项目: {}", project);
+
+            if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+                throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+            }
 
             if (project.getStatus() == null || project.getStatus().equals(ProjectStatusEnum.DRAFT)) {
                 log.info("项目状态为草稿，无法获取剧本");
@@ -267,6 +278,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
         }
 
+        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+        }
+
         // 2. 构建新的剧本对象
         UserScript newUserScript = new UserScript();
         newUserScript.setTitle(userScriptDto.getUserScriptWithCharacterName().getTitle());
@@ -316,6 +331,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         if (project == null) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
         }
+
+        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+        }
+
         // 校验项目状态：
         if (!(project.getStatus() == ProjectStatusEnum.PODCAST || project.getStatus() == ProjectStatusEnum.PUBLISHED)) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_HAVE_PODCAST);
@@ -368,6 +388,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
         }
 
+        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+        }
+
         // 1. 删除所有的Episode
         episodeService.remove(new QueryWrapper<Episode>().eq("project_id", projectId));
 
@@ -386,6 +410,97 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         );
     }
 
+    @Override
+    @Transactional
+    public PageResult<List<PublishedProjectVo>> getCommunityWorks(PublishedProjectDto publishedProjectDto) {
+
+        log.info("查询社区作品参数: {}", publishedProjectDto);
+
+        Page<Project> page = this.page(
+                new Page<>(publishedProjectDto.getPageNum(), publishedProjectDto.getPageSize()),
+                new QueryWrapper<Project>()
+                        .eq("status", ProjectStatusEnum.PUBLISHED)
+                        .orderByAsc("create_time"));
+
+        List<Project> records = page.getRecords();
+
+        List<PublishedProjectVo> publishedProjectVoList = new ArrayList<>();
+
+        records.forEach(project -> {
+            PublishedProjectVo publishedProjectVo = new PublishedProjectVo();
+            BeanUtils.copyProperties(project, publishedProjectVo);
+
+            publishedProjectVo.setUserId(project.getUserId());
+            publishedProjectVo.setProjectId(project.getId());
+            publishedProjectVo.setPublishedTime(project.getUpdateTime());
+
+            User user = userService.getById(project.getUserId());
+            if (user == null) {
+                throw new RuntimeException(CommonErrorMessage.USER_NOT_FOUND);
+            }
+            publishedProjectVo.setAvatar(user.getAvatar());
+            publishedProjectVo.setUsername(user.getUsername());cd
+            publishedProjectVo.setGender(user.getGender());
+
+            // 计算收藏数
+            publishedProjectVo.setCollectionCount(
+                    communityCollectionService.count(new QueryWrapper<CommunityCollection>().eq("project_id", project.getId()))
+            );
+
+            publishedProjectVoList.add(publishedProjectVo);
+        });
+
+        PageResult<List<PublishedProjectVo>> pageResult = new PageResult<>();
+        pageResult.setTotalCount((int) page.getTotal());
+        pageResult.setPageNum((int) page.getCurrent());
+        pageResult.setPageSize((int) page.getSize());
+        pageResult.setTotalPage((int) page.getPages());
+        pageResult.setRecords(publishedProjectVoList);
+        log.info("查询社区作品结果: {}", pageResult);
+        return pageResult;
+    }
+
+    @Override
+    public void publishProject(long projectId) {
+        Project project = this.getById(projectId);
+
+        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+        }
+
+        if (project == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+        if (project.getStatus() == ProjectStatusEnum.PUBLISHED) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_ALREADY_PUBLISHED);
+        }
+        if (project.getStatus() != ProjectStatusEnum.PODCAST) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_HAVE_PODCAST);
+        }
+        // 发布项目
+        project.setStatus(ProjectStatusEnum.PUBLISHED);
+        this.updateById(project);
+    }
+
+    @Override
+    public void cancelPublishProject(long projectId) {
+        // 取消发布项目
+        Project project = this.getById(projectId);
+
+        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+        }
+
+        if (project == null) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
+        }
+        if (project.getStatus() != ProjectStatusEnum.PUBLISHED) {
+            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_PUBLISHED);
+        }
+        project.setStatus(ProjectStatusEnum.PODCAST);
+        this.updateById(project);
+    }
+
     // 异步方法：负责生成剧本和后续操作
     @Override
     @Async
@@ -398,6 +513,10 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             if (project == null || !project.getStatus().equals(ProjectStatusEnum.DRAFT_SCRIPT)) {
                 log.info("项目状态不正确，不生成剧本");
                 return;
+            }
+
+            if (!project.getUserId().toString().equals(generateAiUserScriptDto.getUserId().toString())) {
+                throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
             }
 
             // 构建请求参数

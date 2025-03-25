@@ -2,10 +2,9 @@ package cn.uncleyumo.talkspacestudio.service;
 
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
-import cn.uncleyumo.talkspacestudio.entity.vo.FinalProjectVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.ProjectRoleVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdAndCharacterNameVo;
-import cn.uncleyumo.talkspacestudio.entity.vo.UserScriptWithProjectIdVo;
+import cn.uncleyumo.talkspacestudio.entity.vo.*;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
  * @description
  */
 
-public interface ProjectService {
+public interface ProjectService extends IService<Project> {
     long createProject(UserScriptDto userScriptDto);
 
     void generateEpisodes(GenerateEpisodesDto generateEpisodesDto);
@@ -40,4 +39,10 @@ public interface ProjectService {
     FinalProjectVo getFinalProjectVo(long projectId);
 
     void deleteProject(long projectId);
+
+    PageResult<List<PublishedProjectVo>> getCommunityWorks(PublishedProjectDto publishedProjectDto);
+
+    void publishProject(long projectId);
+
+    void cancelPublishProject(long projectId);
 }
