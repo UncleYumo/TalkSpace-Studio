@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue';
 import PodcastPlayer from '../../../components/PodcastPlayer.vue';
 import type { GetPublishedProjectListApiCallbackType, GetPublishedProjectListApiType, FinalProjectType } from '../../../api/types/handleProjectApiType';
-import { getFinalProjectApi, getPublishedProjectListApi } from '../../../api/handleProjectApi';
+import { cancelCollectProjectApi, collectProjectApi, getFinalProjectApi, getPublishedProjectListApi } from '../../../api/handleProjectApi';
 import { formatCreateTime } from '../../../utils/TimeUtil';
 const breadcrumbPath = ref<string[]>(['首页', '言境社区']);
 const pageSizeOptions = ref<string[]>(['10', '20', '30']);
@@ -52,6 +52,20 @@ const refreshPublishedProjectList = async () => {
   if (result) {
     publishedProjectData.value = result;
     totalCount.value = result.totalCount;
+  }
+}
+
+const doCancelCollectProject = async (projectId: string) => {
+  let result = await cancelCollectProjectApi(projectId);
+  if (result) {
+    refreshPublishedProjectList();
+  }
+}
+
+const doCollectProject = async (projectId: string) => {
+  let result = await collectProjectApi(projectId);
+  if (result) {
+    refreshPublishedProjectList();
   }
 }
 
@@ -127,7 +141,8 @@ onMounted(() => {
             </template>
             <a-button type="link" class="">复制提示词</a-button>
           </a-popover>
-          <a-button type="link">{{ true ? '添加到收藏' : '取消收藏' }}</a-button>
+          <a-button v-if="publishedProjectVo.isCollected" type="link" @click="doCancelCollectProject(publishedProjectVo.projectId)">取消收藏</a-button>
+          <a-button v-else type="link" @click="doCollectProject(publishedProjectVo.projectId)">添加到收藏</a-button>
         </div>
       </a-card>
     </a-col>

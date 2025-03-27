@@ -146,17 +146,16 @@ public class ProjectController {
     @PostMapping("my_published_works")
     @Operation(summary = "获取我发布的作品列表")
     public SaResult getMyPublishedWorks(@RequestBody PublishedProjectDto publishedProjectDto) {
-//        PageResult<List<PublishedProjectVo>> pageResult = projectService.getCommunityWorks(publishedProjectDto);
-//        return SaResult.data(pageResult);
-        return SaResult.ok("暂未实现：获取我发布的作品列表");
+        PageResult<List<PublishedProjectVo>> pageResult = projectService.getMyPublishedWorks(publishedProjectDto);
+        return SaResult.data(pageResult);
     }
 
     @PostMapping("my_collection_works")
     @Operation(summary = "获取我收藏的作品列表")
     public SaResult getMyCollectionWorks(@RequestBody PublishedProjectDto publishedProjectDto) {
-//        PageResult<List<PublishedProjectVo>> pageResult = projectService.getCommunityWorks(publishedProjectDto);
+        PageResult<List<PublishedProjectVo>> pageResult = projectService.getMyCollectionWorks(publishedProjectDto);
 //        return SaResult.data(pageResult);
-        return SaResult.ok("暂未实现：获取我收藏的作品列表");
+        return SaResult.data(pageResult);
     }
 
     @PutMapping("publish_project/{projectId}")

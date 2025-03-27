@@ -10,6 +10,7 @@ import cn.uncleyumo.talkspacestudio.service.CommunityCollectionService;
 import cn.uncleyumo.talkspacestudio.service.ProjectService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.List;
  */
 
 @Service
+@Slf4j
 public class CommunityCollectionServiceImpl
         extends ServiceImpl<CommunityCollectionMapper, CommunityCollection>
         implements CommunityCollectionService {
@@ -38,6 +40,7 @@ public class CommunityCollectionServiceImpl
 
     @Override
     public void collectProject(long projectId) {
+        log.info("即将收藏的项目ID：{}", projectId);
         Project project = projectService.getById(projectId);
         if (project == null) {
             throw new IllegalArgumentException(CommonErrorMessage.PROJECT_NOT_FOUND);
@@ -45,8 +48,11 @@ public class CommunityCollectionServiceImpl
         if (project.getStatus() != ProjectStatusEnum.PUBLISHED) {
             throw new IllegalArgumentException(CommonErrorMessage.PROJECT_NOT_PUBLISHED);
         }
-        List<CommunityCollection> userId = this.list(new QueryWrapper<CommunityCollection>().eq("user_id", StpUtil.getLoginId()));
-        if (!userId.isEmpty()) {
+        long count = this.count(new QueryWrapper<CommunityCollection>()
+                .eq("user_id", StpUtil.getLoginIdAsLong())
+                .eq("project_id", projectId));
+
+        if (count > 0) {
             throw new IllegalArgumentException(CommonErrorMessage.PROJECT_ALREADY_COLLECTED);
         }
         CommunityCollection communityCollection = new CommunityCollection();
@@ -57,12 +63,18 @@ public class CommunityCollectionServiceImpl
 
     @Override
     public void cancelCollectProject(long projectId) {
-        CommunityCollection communityCollection = this.getOne(new QueryWrapper<CommunityCollection>()
-               .eq("user_id", StpUtil.getLoginIdAsLong())
-               .eq("project_id", projectId));
-        if (communityCollection == null) {
+        log.info("即将取消收藏的项目ID：{}", projectId);
+        long count = this.count(new QueryWrapper<CommunityCollection>()
+                .eq("user_id", StpUtil.getLoginIdAsLong())
+                .eq("project_id", projectId));
+        if (count == 0) {
             throw new IllegalArgumentException(CommonErrorMessage.PROJECT_NOT_COLLECTED);
         }
-        this.removeById(communityCollection.getId());
+        if (count > 1) {
+            log.warn("用户{}收藏的项目中存在多个项目ID为{}的记录，将全部删除", StpUtil.getLoginId(), projectId);
+        }
+        this.remove(new QueryWrapper<CommunityCollection>()
+                .eq("user_id", StpUtil.getLoginIdAsLong())
+                .eq("project_id", projectId));
     }
 }

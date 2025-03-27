@@ -111,5 +111,6 @@ export interface FinalProjectType {
     userPrompt: string;  // 用户提示词
     episodeCount: number;  // 分集总数
     collectionCount: string;  // 收藏数
+    isCollected: boolean;  // 是否收藏
     publishedTime: number[];  // ISO 8601 格式日期字符串
   }

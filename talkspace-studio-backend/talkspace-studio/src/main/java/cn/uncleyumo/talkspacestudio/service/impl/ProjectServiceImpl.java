@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                               ProjectMapper projectMapper, AliyunTtsUtil aliyunTtsUtil,
                               MinioUtil minioUtil, EpisodeService episodeService,
                               AliyunTtsProperty aliyunTtsProperty, AliyunLlmUtil aliyunLlmUtil1,
+                              @Lazy
                               CommunityCollectionService communityCollectionService,
                               UserService userService) {
         this.projectRoleService = projectRoleService;
@@ -439,7 +441,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                 throw new RuntimeException(CommonErrorMessage.USER_NOT_FOUND);
             }
             publishedProjectVo.setAvatar(user.getAvatar());
-            publishedProjectVo.setUsername(user.getUsername());cd
+            publishedProjectVo.setUsername(user.getUsername());
             publishedProjectVo.setGender(user.getGender());
 
             // 计算收藏数
@@ -447,6 +449,17 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                     communityCollectionService.count(new QueryWrapper<CommunityCollection>().eq("project_id", project.getId()))
             );
 
+            // 判断当前用户是否收藏了该项目
+            boolean isCollected = false;
+            CommunityCollection collection = communityCollectionService.getOne(
+                    new QueryWrapper<CommunityCollection>()
+                            .eq("user_id", StpUtil.getLoginIdAsLong())
+                            .eq("project_id", project.getId())
+            );
+            if (collection != null) {
+                isCollected = true;
+            }
+            publishedProjectVo.setIsCollected(isCollected);
             publishedProjectVoList.add(publishedProjectVo);
         });
 
@@ -499,6 +512,134 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         }
         project.setStatus(ProjectStatusEnum.PODCAST);
         this.updateById(project);
+    }
+
+    @Override
+    @Transactional
+    public PageResult<List<PublishedProjectVo>> getMyPublishedWorks(PublishedProjectDto publishedProjectDto) {
+
+        log.info("查询社区作品参数: {}", publishedProjectDto);
+
+        Page<Project> page = this.page(
+                new Page<>(publishedProjectDto.getPageNum(), publishedProjectDto.getPageSize()),
+                new QueryWrapper<Project>()
+                        .eq("status", ProjectStatusEnum.PUBLISHED)
+                        .eq("user_id", StpUtil.getLoginIdAsLong())
+                        .orderByAsc("create_time"));
+
+        List<Project> records = page.getRecords();
+
+        List<PublishedProjectVo> publishedProjectVoList = new ArrayList<>();
+
+        records.forEach(project -> {
+            PublishedProjectVo publishedProjectVo = new PublishedProjectVo();
+            BeanUtils.copyProperties(project, publishedProjectVo);
+
+            publishedProjectVo.setUserId(project.getUserId());
+            publishedProjectVo.setProjectId(project.getId());
+            publishedProjectVo.setPublishedTime(project.getUpdateTime());
+
+            User user = userService.getById(project.getUserId());
+            if (user == null) {
+                throw new RuntimeException(CommonErrorMessage.USER_NOT_FOUND);
+            }
+            publishedProjectVo.setAvatar(user.getAvatar());
+            publishedProjectVo.setUsername(user.getUsername());
+            publishedProjectVo.setGender(user.getGender());
+
+            // 计算收藏数
+            publishedProjectVo.setCollectionCount(
+                    communityCollectionService.count(new QueryWrapper<CommunityCollection>().eq("project_id", project.getId()))
+            );
+
+            // 判断当前用户是否收藏了该项目
+            boolean isCollected = false;
+            CommunityCollection collection = communityCollectionService.getOne(
+                    new QueryWrapper<CommunityCollection>()
+                            .eq("user_id", StpUtil.getLoginIdAsLong())
+                            .eq("project_id", project.getId())
+            );
+            if (collection != null) {
+                isCollected = true;
+            }
+            publishedProjectVo.setIsCollected(isCollected);
+            publishedProjectVoList.add(publishedProjectVo);
+        });
+
+        PageResult<List<PublishedProjectVo>> pageResult = new PageResult<>();
+        pageResult.setTotalCount((int) page.getTotal());
+        pageResult.setPageNum((int) page.getCurrent());
+        pageResult.setPageSize((int) page.getSize());
+        pageResult.setTotalPage((int) page.getPages());
+        pageResult.setRecords(publishedProjectVoList);
+        log.info("查询社区作品结果: {}", pageResult);
+        return pageResult;
+    }
+
+    @Override
+    @Transactional
+    public PageResult<List<PublishedProjectVo>> getMyCollectionWorks(PublishedProjectDto publishedProjectDto) {
+        log.info("查询我的收藏作品参数: {}", publishedProjectDto);
+
+        Long currentUserId = StpUtil.getLoginIdAsLong(); // 获取当前用户ID
+
+        // 1. 分页查询当前用户的收藏记录，获取收藏的项目ID列表
+        Page<CommunityCollection> collectionPage = communityCollectionService.page(
+                new Page<>(publishedProjectDto.getPageNum(), publishedProjectDto.getPageSize()),
+                new QueryWrapper<CommunityCollection>()
+                        .eq("user_id", currentUserId)
+                        .orderByDesc("create_time") // 按收藏时间倒序
+        );
+
+        List<Long> projectIds = collectionPage.getRecords().stream()
+                .map(CommunityCollection::getProjectId)
+                .distinct() // 去重防止重复收藏导致重复项目
+                .collect(Collectors.toList());
+
+        // 2. 根据项目ID列表查询已发布的项目（确保项目处于发布状态）
+        List<Project> projects = projectIds.isEmpty() ? Collections.emptyList() : this.listByIds(projectIds);
+        List<Project> filteredProjects = projects.stream()
+                .filter(p -> ProjectStatusEnum.PUBLISHED.equals(p.getStatus()))
+                .sorted(Comparator.comparing(Project::getCreateTime)) // 保持与收藏时间一致的排序
+                .collect(Collectors.toList());
+
+        // 3. 转换为VO并填充数据
+        List<PublishedProjectVo> publishedProjectVoList = new ArrayList<>();
+        filteredProjects.forEach(project -> {
+            PublishedProjectVo vo = new PublishedProjectVo();
+            BeanUtils.copyProperties(project, vo);
+            vo.setUserId(project.getUserId());
+            vo.setProjectId(project.getId());
+            vo.setPublishedTime(project.getUpdateTime());
+
+            // 填充用户信息
+            User user = userService.getById(project.getUserId());
+            if (user == null) {
+                throw new RuntimeException(CommonErrorMessage.USER_NOT_FOUND);
+            }
+            vo.setAvatar(user.getAvatar());
+            vo.setUsername(user.getUsername());
+            vo.setGender(user.getGender());
+
+            // 填充收藏信息（当前用户必然已收藏）
+            vo.setCollectionCount(communityCollectionService.count(
+                    new QueryWrapper<CommunityCollection>().eq("project_id", project.getId())
+            ));
+            vo.setIsCollected(true); // 因为是查询自己的收藏列表
+
+            publishedProjectVoList.add(vo);
+        });
+
+        // 4. 组装分页结果（注意：这里使用收藏记录的分页数据）
+        PageResult<List<PublishedProjectVo>> pageResult = new PageResult<>();
+        pageResult.setTotalCount((int) collectionPage.getTotal());
+        pageResult.setPageNum((int) collectionPage.getCurrent());
+        pageResult.setPageSize((int) collectionPage.getSize());
+        pageResult.setTotalPage((int) collectionPage.getPages());
+        pageResult.setRecords(publishedProjectVoList);
+
+        log.info("查询我的收藏作品结果: {}", pageResult);
+        return pageResult;
     }
 
     // 异步方法：负责生成剧本和后续操作

@@ -45,4 +45,8 @@ public interface ProjectService extends IService<Project> {
     void publishProject(long projectId);
 
     void cancelPublishProject(long projectId);
+
+    PageResult<List<PublishedProjectVo>> getMyPublishedWorks(PublishedProjectDto publishedProjectDto);
+
+    PageResult<List<PublishedProjectVo>> getMyCollectionWorks(PublishedProjectDto publishedProjectDto);
 }

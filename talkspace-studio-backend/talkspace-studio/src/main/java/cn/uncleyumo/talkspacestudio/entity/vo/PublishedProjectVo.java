@@ -65,6 +65,10 @@ public class PublishedProjectVo implements Serializable {
      */
     private Long collectionCount;
     /**
+     * 是否被当前用户收藏
+     */
+    private Boolean isCollected;
+    /**
      * 发布时间
      */
     private LocalDateTime publishedTime;

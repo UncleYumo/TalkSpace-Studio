@@ -10,6 +10,7 @@ import router from '../router/index.ts';
 import { useWebSocketMessageStore } from '../stores/WebSocketMessageStore.ts';
 import { githubUrl } from '../assets/asset_urls.ts';
 import { useMainPageHeaderMenuKeyStore } from '../stores/MainPageHeaderMenuKeyStore.ts';
+import { message } from 'ant-design-vue';
 
 const messageColumns = [
     {
@@ -98,7 +99,7 @@ const goToGithubPage = () => {
                     </a>
                     <template #overlay>
                         <a-menu @click="">
-                            <a-menu-item key="1">
+                            <a-menu-item key="1" @click="message.warn('请联系管理员，充值99元即可开通编辑资料功能！')">
                                 <a-space>
                                     <FormOutlined />
                                     编辑资料
