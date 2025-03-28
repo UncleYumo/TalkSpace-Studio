@@ -15,12 +15,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class AvatarFileUrlConstant {
     public static final List<String> MALE_AVATAR_URLS = Arrays.asList(
-            "http://localhost:9000/talkspace-studio/default_avatar/male_avatar_01.png",
-            "http://localhost:9000/talkspace-studio/default_avatar/male_avatar_02.png"
+            "http://uncleyumo.cn:9000/talkspace-studio/default_avatar/male_avatar_01.png",
+            "http://uncleyumo.cn:9000/talkspace-studio/default_avatar/male_avatar_02.png"
     );
     public static final List<String> FEMALE_AVATAR_URLS = Arrays.asList(
-            "http://localhost:9000/talkspace-studio/default_avatar/female_avatar_01.png",
-            "http://localhost:9000/talkspace-studio/default_avatar/female_avatar_02.png"
+            "http://uncleyumo.cn:9000/talkspace-studio/default_avatar/female_avatar_01.png",
+            "http://uncleyumo.cn:9000/talkspace-studio/default_avatar/female_avatar_02.png"
     );
 
     public static String getOneMaleAvatarUrl() {

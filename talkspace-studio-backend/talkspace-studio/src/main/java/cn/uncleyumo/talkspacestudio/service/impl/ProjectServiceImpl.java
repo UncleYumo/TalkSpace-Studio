@@ -108,14 +108,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Transactional
     public void generateEpisodes(GenerateEpisodesDto generateEpisodesDto) {
 
+        log.info("接收到的generateEpisodesDto: {}", generateEpisodesDto);
+
         Project p = this.getById(generateEpisodesDto.getProjectId());
         if (p == null) {
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
         }
 
-        if (p.getUserId() != StpUtil.getLoginIdAsLong()) {
-            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
-        }
+//        if (p.getUserId() != StpUtil.getLoginIdAsLong()) {
+//            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+//        }
 
         // 删除原有剧本
         QueryWrapper<Episode> queryWrapper = new QueryWrapper<>();

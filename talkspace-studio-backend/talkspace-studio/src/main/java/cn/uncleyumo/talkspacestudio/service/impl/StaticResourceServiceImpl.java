@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -51,6 +52,29 @@ public class StaticResourceServiceImpl implements StaticResourceService {
                     file.getContentType()
             );
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String fileUploadWithPath(MultipartFile file, String path) {
+        // 文件上传（带存储路径：path1-path2-path3）
+        // 构造存储路径
+        String[] paths = path.split("-");
+        // 截取file的后缀名
+//        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+        StringBuilder pathBuilder = new StringBuilder();
+        for (String p : paths) {
+            pathBuilder.append(p).append("/");
+        }
+        log.info("上传文件到路径：{}", pathBuilder);
+        try {
+            return minioUtil.uploadFile(
+                    file.getInputStream(),
+                    pathBuilder.append(file.getOriginalFilename()).toString(),
+                    file.getContentType()
+            );
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -17,6 +17,7 @@ public class TalkspaceStudioApplication {
         YumoColorPrintUtil yumoColorPrintUtil = new YumoColorPrintUtil();
         yumoColorPrintUtil.programStart();
         yumoColorPrintUtil.printlnRed("Server started: http://localhost:8081");
+        yumoColorPrintUtil.printlnRed("Front-end: http://localhost:5173");
         yumoColorPrintUtil.printlnRed("Swagger API: http://localhost:8081/doc.html");
     }
 

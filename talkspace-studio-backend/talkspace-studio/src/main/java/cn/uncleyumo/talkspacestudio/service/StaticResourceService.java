@@ -18,4 +18,6 @@ public interface StaticResourceService {
     Integer getTtsMaxTokens();
 
     String fileUpload(MultipartFile file);
+
+    String fileUploadWithPath(MultipartFile file, String path);
 }
