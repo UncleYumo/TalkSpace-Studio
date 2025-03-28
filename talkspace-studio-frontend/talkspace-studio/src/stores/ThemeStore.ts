@@ -43,7 +43,7 @@ export const useThemeStore = defineStore(
     }
     // 根据暗黑模式状态返回对应logo路径
     const logoPath = computed(() => {
-      return `http://localhost:9000/talkspace-studio/frontend-assets/logo/talkspace_studio_logo_${darkMode.value}.png`
+      return `http://uncleyumo.cn:9000/talkspace-studio/frontend_assets/logo/talkspace_studio_logo_${darkMode.value}.png`
     })
 
     return { themeName, themeConfig, darkMode, darkModeComp, logoPath, setThemeName, toggleDarkMode, getThemeModeName }
