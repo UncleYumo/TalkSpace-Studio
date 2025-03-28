@@ -336,9 +336,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_FOUND);
         }
 
-        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
-            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
-        }
+//        if (project.getUserId() != StpUtil.getLoginIdAsLong()) {
+//            throw new RuntimeException(CommonErrorMessage.PROJECT_NOT_YOURS);
+//        }
 
         // 校验项目状态：
         if (!(project.getStatus() == ProjectStatusEnum.PODCAST || project.getStatus() == ProjectStatusEnum.PUBLISHED)) {
