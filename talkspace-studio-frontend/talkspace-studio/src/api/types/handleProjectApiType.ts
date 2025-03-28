@@ -1,5 +1,3 @@
-import type { NumberLiteralType } from "typescript";
-
 export type createProjectApiType = {
     userPrompt: string;
     title: string;

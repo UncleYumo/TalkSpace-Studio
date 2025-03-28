@@ -105,7 +105,7 @@ onMounted(() => {
               <template #content>
                 <div class="p-1">
                   <p class="mb-1">用户名：{{ publishedProjectVo.username }}</p>
-                  <p>性&nbsp;&nbsp;&nbsp;&nbsp;别：{{ publishedProjectVo.gender == 1 ? '男' : '女' }}</p>
+                  <p>性&nbsp;&nbsp;&nbsp;&nbsp;别：{{ publishedProjectVo.gender == 0 ? '男' : '女' }}</p>
                 </div>
               </template>
               <template #title>
