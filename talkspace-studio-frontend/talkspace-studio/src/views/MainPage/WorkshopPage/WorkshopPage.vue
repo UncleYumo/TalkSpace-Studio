@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import {
@@ -136,7 +135,7 @@ const doCreateProject = async () => {
       const result = await createProjectApi(formState);
       if (result) {
         doResetData();
-        await router.push('my-creations-page').then(()=> {
+        await router.push('my-creations-page').then(() => {
           currentKey.value = ['my-creations-page'];
         });
       }
@@ -151,38 +150,43 @@ const doResetData = () => {
   formRef.value.resetFields();
 };
 
+const getRandomTemplate = async () => {
+  
+}
+
+const voiceInputData = async () => {
+
+}
+
 onMounted(() => {
   refreshTtsTimbreListTableData();
 });
 </script>
 
 <template>
+  <!-- 面包屑导航，展示当前页面路径 -->
   <a-breadcrumb class="mb-6">
     <a-breadcrumb-item v-for="(item, index) in breadcrumbPath" :key="index">
       {{ item }}
     </a-breadcrumb-item>
   </a-breadcrumb>
+  <!-- 主要布局，包含左侧表单区域和右侧表格区域 -->
   <a-layout class="mt-4 rounded-4xl">
     <a-row :gutter="24" class="p-2">
-      <!-- 左侧表单区域 -->
+      <!-- 左侧表单区域，用于输入播客的相关信息 -->
       <a-col :span="10">
         <a-layout class="rounded-lg h-full shadow-inner">
           <a-layout-content class="px-8 py-8">
             <p class="text-center mb-8 text-2xl font-bold">播客模板</p>
-            <a-form
-              ref="formRef"
-              :model="formState"
-              :rules="rules"
-              :label-col="layout.labelCol"
-              :wrapper-col="layout.wrapperCol"
-              class="space-y-4"
-            >
-              <!-- 播客标题 -->
+            <!-- 表单组件，包含多个输入项用于生成播客模板 -->
+            <a-form ref="formRef" :model="formState" :rules="rules" :label-col="layout.labelCol"
+              :wrapper-col="layout.wrapperCol" class="space-y-4">
+              <!-- 播客标题输入项 -->
               <a-form-item label="播客标题" name="title" class="mb-6 ant-form-item-label font-medium">
                 <a-input v-model:value="formState.title" class="rounded-md" />
               </a-form-item>
 
-              <!-- 语言风格 -->
+              <!-- 语言风格选择项 -->
               <a-form-item label="语言风格" name="language" class="mb-6 ant-form-item-label font-medium">
                 <a-select v-model:value="formState.language" class="w-full" popupClassName="rounded-md shadow-lg">
                   <a-select-option value="中文为主">中文为主</a-select-option>
@@ -191,67 +195,70 @@ onMounted(() => {
                 </a-select>
               </a-form-item>
 
-              <!-- 单集时长 -->
+              <!-- 单集时长输入项 -->
               <a-form-item label="单集时长（分钟）" name="singleDuration" class="mb-6 ant-form-item-label font-medium">
-                <a-input-number
-                  v-model:value="formState.singleDuration"
-                  class="w-full"
-                  :controls-class="'text-blue-500 hover:text-blue-600'"
-                  :min="1"
-                  :max="8"
-                />
+                <a-input-number v-model:value="formState.singleDuration" class="w-full"
+                  :controls-class="'text-blue-500 hover:text-blue-600'" :min="1" :max="8" />
               </a-form-item>
 
-              <!-- 播客集数 -->
+              <!-- 播客集数输入项 -->
               <a-form-item label="播客集数" name="episodeCount" class="mb-6 ant-form-item-label font-medium">
-                <a-input-number
-                  v-model:value="formState.episodeCount"
-                  class="w-full"
-                  :controls-class="'text-blue-500 hover:text-blue-600'"
-                  :min="1"
-                />
+                <a-input-number v-model:value="formState.episodeCount" class="w-full"
+                  :controls-class="'text-blue-500 hover:text-blue-600'" :min="1" />
               </a-form-item>
 
-                <!-- 播客提示词 -->
-                <a-form-item label="播客提示词" name="userPrompt" class="mb-6 ant-form-item-label font-medium">
-                  <a-textarea v-model:value="formState.userPrompt" class="rounded-md" />
-                </a-form-item>
+              <!-- 播客提示词输入项 -->
+              <a-form-item label="播客提示词" name="userPrompt" class="mb-6 ant-form-item-label font-medium">
+                <a-textarea v-model:value="formState.userPrompt" class="rounded-md" />
+              </a-form-item>
 
-              <!-- 角色列表 -->
+              <!-- 角色列表展示区域 -->
               <a-form-item label="角色列表" class="mb-6 font-medium">
                 <div class="space-y-2 w-40">
-                  <a-tag
-                    v-for="(role, index) in formState.roles"
-                    :key="index"
-                    closable
-                    @close="removeRole(index)"
-                    class="flex items-center justify-between w-full"
-                  >
+                  <a-tag v-for="(role, index) in formState.roles" :key="index" closable @close="removeRole(index)"
+                    class="flex items-center justify-between w-full">
                     <span class="font-bold">{{ role.characterName }}</span>
                     <span class="ml-2 text-xs">{{ role.timbre }}</span>
                   </a-tag>
                 </div>
               </a-form-item>
 
-              <!-- 角色添加按钮 -->
-              <a-form-item :wrapper-col="{ span: 14, offset: 3 }">
-                <a-button :loading="isLoading" type="primary" @click.prevent="doCreateProject">生成播客模板</a-button>
-                <a-button style="margin-left: 10px" @click="doResetData">重置</a-button>
+              <a-form-item :wrapper-col="{ span: 24, offset: 5 }">
+                <div class="flex gap-2">
+                  <a-tooltip>
+                    <template #title>随机获取播客标题和提示词模板</template>
+                    <a-button @click.prevent="getRandomTemplate">生成随机模板</a-button>
+                  </a-tooltip>
+
+                  <a-tooltip>
+                    <template #title>根据播客标题AI生成播客提示词</template>
+                    <a-button @click.prevent="voiceInputData">AI生成提示词</a-button>
+                  </a-tooltip>
+                  
+                </div>
               </a-form-item>
+
+              <!-- 播客模板生成和重置按钮 -->
+              <a-form-item :wrapper-col="{ span: 24, offset: 5 }">
+                <div class="flex gap-2">
+                  <a-button type="primary" @click.prevent="doCreateProject">生成播客模板</a-button>
+                  <a-button @click="doResetData">重置播客模板</a-button>
+                </div>
+              </a-form-item>
+
             </a-form>
           </a-layout-content>
         </a-layout>
       </a-col>
-      <!-- 右侧表格区域 -->
+      <!-- 右侧表格区域，展示可用的音色列表 -->
       <a-col :span="14">
         <a-layout class="rounded-lg shadow-inner h-full">
           <a-layout-content class="px-4 py-4">
-
-            <!-- 音色列表 -->
+            <!-- 音色列表表格 -->
             <a-table :columns="ttsTimbreListColumns" :data-source="ttsTimbreListTableData" :scroll="{ y: 400 }"
               class="rounded-lg overflow-hidden">
 
-              <!-- 自定义列模板 -->
+              <!-- 自定义表格体单元格内容，主要用于添加角色的按钮 -->
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'action'">
                   <a-button type="primary" size="small" @click="showAddModal(record)"
@@ -261,7 +268,7 @@ onMounted(() => {
                 </template>
               </template>
 
-              <!-- 表头图标 -->
+              <!-- 自定义表格表头单元格内容，添加图标和加粗样式 -->
               <template #headerCell="{ column }">
                 <span class="font-semibold">
                   <smile-outlined class="mr-2" />
@@ -275,7 +282,7 @@ onMounted(() => {
     </a-row>
   </a-layout>
 
-  <!-- 添加角色模态框 -->
+  <!-- 用于添加新角色的模态框 -->
   <a-modal width="300px" v-model:open="isModalVisible" title="输入角色姓名" @ok="handleAddRole">
     <div class="mx-2">
       <a-input v-model:value="characterNameInput" placeholder="请输入该音色所扮演的角色姓名" />

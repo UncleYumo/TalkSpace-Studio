@@ -1,6 +1,8 @@
 package cn.uncleyumo.talkspacestudio.controller;
 
 import cn.dev33.satoken.util.SaResult;
+import cn.uncleyumo.talkspacestudio.constant.RandomTemplateConstant;
+import cn.uncleyumo.talkspacestudio.constant.UserPromptLlmPromptConstant;
 import cn.uncleyumo.talkspacestudio.entity.dto.*;
 import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.vo.*;
@@ -14,6 +16,7 @@ import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -200,5 +203,20 @@ public class ProjectController {
         log.info("收藏项目：{}", projectId);
         communityCollectionService.cancelCollectProject(Long.parseLong(projectId));
         return SaResult.ok("已取消收藏该项目");
+    }
+
+    @GetMapping("get_random_template")
+    @Operation(summary = "获取随机模板")
+    public SaResult getRandomTemplate() {
+        log.info("获取随机模板");
+        GetRandomTemplateVo template = RandomTemplateConstant.getRandomTemplate();;
+        return SaResult.data(template);
+    }
+
+    @PostMapping("generate_user_prompt_ai")
+    @Operation(summary = "AI生成用户提示词")
+    public SaResult generateUserPrompt(@Valid @RequestBody  AiGenerateUserPromptDto generateUserPromptDto) {
+        log.info("AI生成用户提示词：{}", generateUserPromptDto);
+        return SaResult.data(UserPromptLlmPromptConstant.getPrompt(generateUserPromptDto));
     }
 }

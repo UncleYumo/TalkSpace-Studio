@@ -112,3 +112,17 @@ export interface FinalProjectType {
     isCollected: boolean;  // 是否收藏
     publishedTime: number[];  // ISO 8601 格式日期字符串
   }
+
+  export interface GetRandomTemplateApiCallbackType {
+    title: string;
+    userPrompt: string;
+  }
+
+  export interface AiGenerateUserPromptApiType {
+    title: string;
+  }
+
+  export interface AiGenerateUserPromptApiCallbackType {
+    title: string;
+    userPrompt: string;
+  }

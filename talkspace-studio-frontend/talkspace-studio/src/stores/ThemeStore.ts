@@ -32,8 +32,10 @@ export const useThemeStore = defineStore(
       }
     })
     const setThemeName = (value: string) => {
+      // 返回主题名称
       themeName.value = value
     }
+
     const getThemeModeName = () => {
       // 返回light或dark
       return darkMode.value

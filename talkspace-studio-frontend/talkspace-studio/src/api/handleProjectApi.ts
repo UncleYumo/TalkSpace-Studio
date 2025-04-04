@@ -1,5 +1,5 @@
 import instance from "./request";
-import type { AiGenerateScriptApiType, createProjectApiType, FinalProjectType, generatePodcastApiType, GetPublishedProjectListApiCallbackType, GetPublishedProjectListApiType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
+import type { AiGenerateScriptApiType, AiGenerateUserPromptApiCallbackType, createProjectApiType, FinalProjectType, generatePodcastApiType, GetPublishedProjectListApiCallbackType, GetPublishedProjectListApiType, GetRandomTemplateApiCallbackType, ProjectListApiType, ProjectRoleListApiType, UserScriptWithCharacterNameApiType } from "./types/handleProjectApiType";
 
 export const createProjectApi = async (data: createProjectApiType) => {
     try {
@@ -139,6 +139,26 @@ export const cancelCollectProjectApi = async (projectId: string) => {
     try {
         await instance.put<string>(`/project/cancel_collect_project/${projectId}`);
         return true;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const GetRandomTemplateApi = async () => {
+    try {
+        const result = await instance.get<GetRandomTemplateApiCallbackType>("/project/get_random_template");
+        return result.data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const AiGenerateUserPromptApi = async (data: AiGenerateScriptApiType) => {
+    try {
+        const result = await instance.post<AiGenerateUserPromptApiCallbackType>("/project/generate_user_prompt_ai", data);
+        return result.data;
     } catch (error) {
         console.error(error);
         return null;
