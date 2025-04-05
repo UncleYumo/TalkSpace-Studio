@@ -81,6 +81,7 @@ const selectedTimbre = ref<ttsTimbreListApiType | null>(null);
 const isModalVisible = ref(false);
 const characterNameInput = ref('');
 const isLoading = ref(false);
+const isAiGenerateUserPromptLoading = ref(false);
 
 const refreshTtsTimbreListTableData = async () => {
   const result = await ttsTimbreListApi();
@@ -164,6 +165,7 @@ const aiGenerateUserPrompt = async () => {
     message.error('请先输入播客标题');
     return;
   }
+  isAiGenerateUserPromptLoading.value = true;
   // 在URL中添加参数
   const params = new URLSearchParams({ 
     title: formState.title,
@@ -175,6 +177,7 @@ const aiGenerateUserPrompt = async () => {
     if (data.output.choices[0].finish_reason === 'stop') {
       eventSource.close();
       message.success('播客提示词生成成功');
+      isAiGenerateUserPromptLoading.value = false;
       return
     }
     formState.userPrompt = data.output.choices[0].message.content;
@@ -184,6 +187,7 @@ const aiGenerateUserPrompt = async () => {
     message.error('播客提示词生成失败');
     console.error(err);
     eventSource.close();
+    isAiGenerateUserPromptLoading.value = false;
   }
 
 }
@@ -262,7 +266,7 @@ onMounted(() => {
 
                   <a-tooltip>
                     <template #title>根据播客标题AI生成播客提示词</template>
-                    <a-button @click.prevent="aiGenerateUserPrompt">AI生成提示词</a-button>
+                    <a-button :loading="isAiGenerateUserPromptLoading" @click.prevent="aiGenerateUserPrompt">AI生成提示词</a-button>
                   </a-tooltip>
                   
                 </div>
