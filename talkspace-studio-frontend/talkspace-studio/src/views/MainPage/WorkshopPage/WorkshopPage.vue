@@ -4,10 +4,10 @@ import {
   SmileOutlined
 } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
-import type { createProjectApiType, Role } from '../../../api/types/handleProjectApiType';
+import type {  createProjectApiType, Role } from '../../../api/types/handleProjectApiType';
 import type { ttsTimbreListApiType } from '../../../api/types/handleStaticResourceApiType';
 import { ttsTimbreListApi } from '../../../api/handleStaticResourceApi';
-import { createProjectApi } from '../../../api/handleProjectApi';
+import { createProjectApi, GetRandomTemplateApi } from '../../../api/handleProjectApi';
 import router from '../../../router';
 import { useMainPageHeaderMenuKeyStore } from '../../../stores/MainPageHeaderMenuKeyStore';
 import { storeToRefs } from 'pinia';
@@ -150,11 +150,41 @@ const doResetData = () => {
   formRef.value.resetFields();
 };
 
+// 获取随机剧本模板
 const getRandomTemplate = async () => {
-  
+    const result = await GetRandomTemplateApi();
+    if (result) {
+      formState.title = result.title;
+      formState.userPrompt = result.userPrompt;
+    }
 }
 
-const voiceInputData = async () => {
+const aiGenerateUserPrompt = async () => {
+  if (formState.title === null || formState.title.trim() === '') {
+    message.error('请先输入播客标题');
+    return;
+  }
+  // 在URL中添加参数
+  const params = new URLSearchParams({ 
+    title: formState.title,
+  });
+  const eventSource = new EventSource(`http://localhost:5173/api/project/generate_user_prompt_ai?${params}`);
+
+  eventSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.output.choices[0].finish_reason === 'stop') {
+      eventSource.close();
+      message.success('播客提示词生成成功');
+      return
+    }
+    formState.userPrompt = data.output.choices[0].message.content;
+  }
+
+  eventSource.onerror = (err) => {
+    message.error('播客提示词生成失败');
+    console.error(err);
+    eventSource.close();
+  }
 
 }
 
@@ -209,7 +239,7 @@ onMounted(() => {
 
               <!-- 播客提示词输入项 -->
               <a-form-item label="播客提示词" name="userPrompt" class="mb-6 ant-form-item-label font-medium">
-                <a-textarea v-model:value="formState.userPrompt" class="rounded-md" />
+                <a-textarea v-model:value="formState.userPrompt" class="rounded-md" :autoSize="{ minRows: 2, maxRows: 100 }" />
               </a-form-item>
 
               <!-- 角色列表展示区域 -->
@@ -232,7 +262,7 @@ onMounted(() => {
 
                   <a-tooltip>
                     <template #title>根据播客标题AI生成播客提示词</template>
-                    <a-button @click.prevent="voiceInputData">AI生成提示词</a-button>
+                    <a-button @click.prevent="aiGenerateUserPrompt">AI生成提示词</a-button>
                   </a-tooltip>
                   
                 </div>

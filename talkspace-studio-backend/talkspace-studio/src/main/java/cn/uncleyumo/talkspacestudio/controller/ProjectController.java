@@ -213,10 +213,17 @@ public class ProjectController {
         return SaResult.data(template);
     }
 
-    @PostMapping("generate_user_prompt_ai")
+//    @PostMapping("generate_user_prompt_ai")
+//    @Operation(summary = "AI生成用户提示词")
+//    public SseEmitter generateUserPrompt(@Valid @RequestBody  AiGenerateUserPromptDto generateUserPromptDto) {
+//        log.info("AI生成用户提示词：{}", generateUserPromptDto);
+//        return projectService.aiGenerateUserPrompt(generateUserPromptDto);
+//    }
+
+    @GetMapping("generate_user_prompt_ai")
     @Operation(summary = "AI生成用户提示词")
-    public SaResult generateUserPrompt(@Valid @RequestBody  AiGenerateUserPromptDto generateUserPromptDto) {
-        log.info("AI生成用户提示词：{}", generateUserPromptDto);
-        return SaResult.data(UserPromptLlmPromptConstant.getPrompt(generateUserPromptDto));
+    public SseEmitter generateUserPrompt(@RequestParam("title") String title) {
+        log.info("AI生成用户提示词：{}", title);
+        return projectService.aiGenerateUserPrompt(new AiGenerateUserPromptDto(title));
     }
 }

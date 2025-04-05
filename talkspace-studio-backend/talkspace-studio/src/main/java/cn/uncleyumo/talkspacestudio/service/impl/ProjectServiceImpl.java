@@ -31,6 +31,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -639,6 +640,15 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
         log.info("查询我的收藏作品结果: {}", pageResult);
         return pageResult;
+    }
+
+    @Override
+    public SseEmitter aiGenerateUserPrompt(AiGenerateUserPromptDto generateUserPromptDto) {
+//        SseEmitter sseEmitter = new SseEmitter(600000L);  // 设置超时时间为10分钟
+        SseEmitter sseEmitter = new SseEmitter();
+        String prompt = UserPromptLlmPromptConstant.getPrompt(generateUserPromptDto);
+        aliyunLlmUtil.streamOutputGeneration(prompt, AliyunLlmModelEnum.QWEN_MAX.getModelName(), sseEmitter);
+        return sseEmitter;
     }
 
     // 异步方法：负责生成剧本和后续操作

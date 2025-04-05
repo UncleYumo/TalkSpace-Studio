@@ -5,6 +5,7 @@ import cn.uncleyumo.talkspacestudio.entity.pojo.Project;
 import cn.uncleyumo.talkspacestudio.entity.vo.*;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -49,4 +50,6 @@ public interface ProjectService extends IService<Project> {
     PageResult<List<PublishedProjectVo>> getMyPublishedWorks(PublishedProjectDto publishedProjectDto);
 
     PageResult<List<PublishedProjectVo>> getMyCollectionWorks(PublishedProjectDto publishedProjectDto);
+
+    SseEmitter aiGenerateUserPrompt(AiGenerateUserPromptDto generateUserPromptDto);
 }
